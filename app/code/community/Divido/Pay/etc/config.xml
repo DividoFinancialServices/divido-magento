@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+    <config>
+        <modules>
+           <Divido_Pay>
+              <version>0.1.0</version>
+           </Divido_Pay>
+        </modules>
+
+        <global>
+            <models>
+                <pay>
+                    <class>Divido_Pay_Model</class>
+                </pay>
+            </models>
+
+            <helpers>
+                <pay>
+                    <class>Divido_Pay_Helper</class>
+                </pay>
+            </helpers>
+
+            <blocks>
+                <pay>
+                    <class>Divido_Pay_Block</class>
+                </pay>
+            </blocks>
+
+            <resources>
+                <divido_pay_setup>
+                    <setup>
+                        <module>Divido_Pay</module>
+                        <class>Divido_Pay_Model_Mysql4_Setup</class>
+                    </setup>
+                    <connection>
+                        <use>core_setup</use>
+                    </connection>
+                </divido_pay_setup>
+                <pay_write>
+                    <connection>
+                      <use>core_write</use>
+                    </connection>
+                </pay_write>
+                <pay_read>
+                   <connection>
+                    <use>core_read</use>
+                  </connection>
+                </pay_read>
+            </resources>
+            
+        </global>
+     
+    <!-- declare default configuration values for this module -->
+        <default>
+            <payment>
+                <pay>
+                    <active>0</active>
+                    <model>pay/Standard</model>
+                    <order_status>pending</order_status>
+                    <title>Pay In Installments Divido</title>
+                    <sort>1</sort>
+                </pay>
+             </payment>
+        </default>
+        <frontend>
+            <routers>
+                <pay>
+                    <use>standard</use>
+                    <args>
+                        <module>Divido_Pay</module>
+                        <frontName>pay</frontName>
+                    </args>
+                </pay>
+            </routers>
+            <layout>
+                <updates>
+                    <divido_pay>
+                        <file>pay.xml</file>
+                    </divido_pay>
+                </updates>
+            </layout>
+        </frontend>
+    </config>

@@ -1,0 +1,246 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2014 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php $_code=$this->getMethodCode(); ?>
+
+<ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
+    <li>
+        <!--<label for="<?php echo $_code ?>_cc_type" class="required"><em>*</em><?php echo $this->__('Pay In Installments'); ?></label>-->
+        <div class="payment_box payment_method_divido" style="display: block;">			
+        
+            <fieldset>
+                <img style="width:150px;float:right;margin-top:-5px;" src="<?php echo Mage::getBaseUrl('media').'/divido/'.$this->getLogo(); ?>">
+                <h1><?php echo $this->__('Pay In Installments'); ?></h1>
+
+                <div style="clear:both;"></div>
+
+                <table style="width:100%;">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label for="divido_campaign">Please select a Finance option <span class="required">*</span></label><br>
+                                <input type="hidden" name="divido_finance" id= "divido_finance">
+                                <select style="width:250px; padding: 4px 0px" id="divido_campaign" name="divido_campaign">
+                                    <?php /* if ($this->getCampaign()->status == 'ok') {
+                                                foreach($this->getCampaign()->finances as $campaign) {
+                                                    print '<option value="'.$campaign->id.'">'.$campaign->text.' ('.$campaign->interest_rate.'% APR)</option>';
+                                                }
+                                            }  */?>
+                                </select>
+                            </td>
+                            <td>
+                                <label for="divido_deposit_percent">Amount to pay as deposit <span class="required">*</span></label>
+
+                                <div id="slider-margin" style="width:250px; padding: 10px 0px;">
+                                    <div style="width:50px;float:left;">
+                                            <span class="divido_deposit_percent">15</span> %
+                                    </div>
+                                    <div style="width:180px;margin-left:10px;float:left;">
+                                        <div class="divido_slider"></div>
+                                        <input type="hidden" class="divido_deposit_amount" name="divido_deposit" value="15.00">
+                                        <input type="hidden" id="divido_deposit_percent" name="divido_deposit_percentage" value="15.00">
+                                    </div>
+                                </div>
+                            </td>
+                       </tr>
+                   </tbody>
+                </table>
+                <br>
+                <div class="clear"></div>
+
+                <div style="background:#f9f9f9;padding:20px;">
+                    <table style="width: 100%;">
+                        <tbody>
+                            <tr>
+                                <td>
+                                      <b>Deposit to pay today:</b>
+                                </td>
+                                <td>
+                                      <?php echo $this->getCurrencySymbol(); ?> <span class="divido_deposit_amount"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                      <b>plus <span class="divido_agreement_duration">6</span> Monthly Repayments of:</b>
+                                </td>
+                                <td>
+                                      <?php echo $this->getCurrencySymbol(); ?> <span class="divido_monthly_payment_amount"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                      <b>Total Payable including interest:</b>
+                                </td>
+                                <td>
+                                      <?php echo $this->getCurrencySymbol(); ?> <span class="divido_total_repayable_amount"><?php echo Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal(); // this will return total price of items added in the  shopping cart. ?></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                      <b>Total Interest APR:</b>
+                                </td>
+                                <td>
+                                      %<span class="divido_apr_representative_percent">0</span>
+                                </td>
+                           </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="clear"></div>
+                <p style="font-style:italic;margin-top:10px;">You will be redirected to Divido to complete this finance application when you place your order</p>
+				<?php //echo $this->getCampaign()->status; ?>
+            </fieldset>
+            <?php   $divido_campaigns = array(); 
+                    if ($this->getCampaign()->status == 'ok') {
+                        foreach($this->getCampaign()->finances as $campaign) {
+                                $divido_campaigns[] = array("code"=> $campaign->id, "country"=> $campaign->country, "text"=> $campaign->text, "interest_rate"=> $campaign->interest_rate, "min_amount"=> $campaign->min_amount, "agreement_duration"=> $campaign->agreement_duration, "deferral_period"=> $campaign->deferral_period);
+                        }
+                    }   ?>
+			<script>
+	jQuery(document).ready(function($) {
+
+            $.divido_campaigns = $.parseJSON('<?php echo json_encode($divido_campaigns); ?>');
+	    //$.divido_campaigns = [{"id":"01","country":"GB","text":"6 Months 0% Interest Free","interest_rate":0,"min_amount":500,"agreement_duration":6,"deferral_period":0},{"id":"02","country":"GB","text":"9 Months 0% Interest Free","interest_rate":0,"min_amount":500,"agreement_duration":9,"deferral_period":0},{"id":"03","country":"GB","text":"12 Months 0% Interest Free","interest_rate":0,"min_amount":500,"agreement_duration":12,"deferral_period":0},{"id":"04","country":"GB","text":"24 Months 0% Interest Free","interest_rate":0,"min_amount":500,"agreement_duration":24,"deferral_period":0},{"id":"05","country":"GB","text":"36 Months 0% Interest Free","interest_rate":0,"min_amount":500,"agreement_duration":36,"deferral_period":0},{"id":"06","country":"GB","text":"12 Months 9.50% APR","interest_rate":9.5,"min_amount":500,"agreement_duration":12,"deferral_period":0},{"id":"07","country":"GB","text":"Pay in 12 Months","interest_rate":26.4,"min_amount":500,"agreement_duration":48,"deferral_period":12}];
+	    //$.divido_campaigns = [{"code":"FA03F93F1-DE39-5089-95D6-E60E04143088","country":"GB","text":"6 month 0%","interest_rate":0,"min_amount":500,"agreement_duration":6,"deferral_period":0}];
+		$.divido_amount = jQuery('.divido_total_repayable_amount').html();
+
+		$("#divido_campaign").html('');
+
+		$.each($.divido_campaigns,function(i,campaign) {
+			var drop_val = parseInt(i)+parseInt(1);
+			var option = $("<option>").html(campaign.text).val(drop_val);
+			$("#divido_campaign").append(option);
+		});
+
+		$.divido_calculator_month = 111;
+		$.divido_monthly_payment_amount = 222;
+		$.divido_apr_representative_text = 'free 0%';
+		$.divido_apr_representative_percent = 0;
+		$.divido_deposit_amount = 0;
+		$.divido_deposit_percent = 10;
+
+                $.divido_credit_amount = 555;
+                $.divido_total_repayable_amount = jQuery('.divido_total_repayable_amount').html();		
+
+		divido_changePlan();
+		divido_recalculate();
+
+		var sliders = $('.divido_slider').noUiSlider({
+			start: [ 10 ],
+			step: 5,
+			range: {
+				'min': [  5 ],
+				'max': [ 50 ]
+			},
+		});
+                sliders.on("slide", function() {
+                      var value = parseInt($( this ).val());
+                      jQuery("span.divido_deposit_percent,div.divido_deposit_percent").html(value);
+			jQuery("input#divido_deposit_percent").val(value);
+                        divido_changeDeposit();
+                    });
+
+		jQuery("select#divido_campaign").change(function(){
+            var divido_campaign = $.divido_campaigns[(jQuery("#divido_campaign").val())-1];
+            if ( divido_campaign != undefined ) {
+				$("#divido_finance").val(divido_campaign.code);
+				
+            	$.divido_apr_representative_percent = divido_campaign.interest_rate;
+    			$.divido_agreement_duration = divido_campaign.agreement_duration;
+    									
+    			if ($.divido_apr_representative_percent > 0) {
+    				$.divido_apr_representative_text = 'APR '+$.divido_apr_representative_percent+'%';
+    			} else {
+    				$.divido_apr_representative_text = 'free 0%';
+    			}
+    			divido_recalculate();
+    			
+                }
+			
+                });
+
+		function divido_changePlan() {
+			var divido_campaign = $.divido_campaigns[(jQuery("#divido_campaign").val())-1];
+			if (divido_campaign != undefined) {
+				$("#divido_finance").val(divido_campaign.code);
+				$.divido_apr_representative_percent = divido_campaign.interest_rate;
+				$.divido_agreement_duration = divido_campaign.agreement_duration;
+										
+				if ($.divido_apr_representative_percent > 0) {
+					$.divido_apr_representative_text = 'APR '+$.divido_apr_representative_percent+'%';
+				} else {
+					$.divido_apr_representative_text = 'free 0%';
+				}
+				divido_recalculate();
+				
+			}
+			
+		}
+
+		function divido_changeDeposit()
+		{
+ 			$.divido_deposit_percent = parseFloat($("#divido_deposit_percent").val());
+			divido_recalculate();	
+		}
+
+		function divido_recalculate() {
+
+			$.divido_deposit_amount = parseFloat(($.divido_deposit_percent/100) * $.divido_amount).toFixed(2);
+			$.divido_credit_amount = parseFloat($.divido_amount - $.divido_deposit_amount).toFixed(2);
+			$.divido_monthly_payment_amount = parseFloat($.divido_credit_amount / $.divido_agreement_duration).toFixed(2);
+			$.divido_finance_cost = parseFloat($.divido_credit_amount*($.divido_apr_representative_percent/100)).toFixed(2);
+			$.divido_total_repayable_amount = parseFloat($.divido_credit_amount + $.divido_finance_cost).toFixed(2);
+			
+			jQuery("span.divido_agreement_duration,div.divido_agreement_duration").html($.divido_agreement_duration);
+			jQuery("input.divido_agreement_duration").val($.divido_agreement_duration);
+
+			jQuery("span.divido_monthly_payment_amount,div.divido_monthly_payment_amount").html($.divido_monthly_payment_amount);
+			jQuery("input.divido_monthly_payment_amount").val($.divido_monthly_payment_amount);
+
+			jQuery("span.divido_apr_representative_text,div.divido_apr_representative_text").html($.divido_apr_representative_text);
+			jQuery("input.divido_apr_representative_text").val($.divido_apr_representative_text);
+
+			jQuery("span.divido_apr_representative_percent,div.divido_apr_representative_percent").html($.divido_apr_representative_percent);
+			jQuery("input.divido_apr_representative_percent").val($.divido_apr_representative_percent);
+
+			jQuery("span.divido_deposit_amount,div.divido_deposit_amount").html($.divido_deposit_amount);
+			jQuery("input.divido_deposit_amount").val($.divido_deposit_amount);
+
+			jQuery("span.divido_deposit_percent,div.divido_deposit_percent").html($.divido_deposit_percent);
+			jQuery("input#divido_deposit_percent").val($.divido_deposit_percent);
+
+			jQuery("span.divido_credit_amount,div.divido_credit_amount").html($.divido_credit_amount);
+			jQuery("input.divido_credit_amount").val($.divido_credit_amount);
+
+			jQuery("span.divido_total_repayable_amount,div.divido_total_repayable_amount").html($.divido_total_repayable_amount);
+			jQuery("input.divido_total_repayable_amount").val($.divido_total_repayable_amount);
+		}
+	});
+	</script>
+        </div>
+    </li>
+</ul>
