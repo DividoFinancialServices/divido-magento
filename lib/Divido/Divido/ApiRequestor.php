@@ -75,6 +75,8 @@ class Divido_ApiRequestor
    */
   public static function encode($arr, $prefix=null)
   {
+
+    return http_build_query($arr);
     if (!is_array($arr))
       return $arr;
 
