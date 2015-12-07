@@ -104,6 +104,8 @@
                             'text'               => $campaign->text,
                             'country'            => $campaign->country,
                             'min_amount'         => $campaign->min_amount,
+                            'min_deposit'        => $campaign->min_deposit,
+                            'max_deposit'        => $campaign->max_deposit,
                             'interest_rate'      => $campaign->interest_rate,
                             'deferral_period'    => $campaign->deferral_period,
                             'agreement_duration' => $campaign->agreement_duration,
@@ -114,7 +116,6 @@
             <script>
                 jQuery(document).ready(function($) {
 
-                    debugger
                     $.divido_campaigns = $.parseJSON('<?php echo json_encode($divido_campaigns); ?>');
                     $.divido_amount = jQuery('.divido_total_repayable_amount').html();
 
@@ -141,30 +142,21 @@
                     divido_changePlan();
 
                     jQuery("select#divido_campaign").change(function() {
-                        var divido_campaign = $.divido_campaigns[(jQuery("#divido_campaign").val())-1];
-                        if ( divido_campaign != undefined ) {
-                            $("#divido_finance").val(divido_campaign.code);
-
-                            $.divido_apr_representative_percent = divido_campaign.interest_rate;
-                            $.divido_agreement_duration = divido_campaign.agreement_duration;
-
-                            if ($.divido_apr_representative_percent > 0) {
-                                $.divido_apr_representative_text = 'APR '+$.divido_apr_representative_percent+'%';
-                            } else {
-                                $.divido_apr_representative_text = 'free 0%';
-                            }
-
-                            divido_recalculate();
-                        }
-
+                        divido_changePlan();
                     });
 
                     function divido_changePlan() {
-                        var divido_campaign = $.divido_campaigns[(jQuery("#divido_campaign").val())-1];
+                        var current_plan = jQuery("#divido_campaign").val();
+                        var divido_campaign = $.divido_campaigns[current_plan - 1];
                         if (divido_campaign != undefined) {
                             $("#divido_finance").val(divido_campaign.code);
                             $.divido_apr_representative_percent = divido_campaign.interest_rate;
                             $.divido_agreement_duration = divido_campaign.agreement_duration;
+
+                            var percentage = jQuery('#divido_deposit_percent')
+                                .attr('min', divido_campaign.min_deposit)
+                                .attr('max', divido_campaign.max_deposit)
+                                .val(divido_campaign.min_deposit);
 
                             if ($.divido_apr_representative_percent > 0) {
                                 $.divido_apr_representative_text = 'APR '+$.divido_apr_representative_percent+'%';
