@@ -1,25 +1,55 @@
 <?php
-require_once ("app/Mage.php");
+require_once("app/Mage.php");
 ini_set("error_reporting",E_ALL);
 ini_set("display_errors",true);
+ini_set('html_errors', false);
 umask(0);
+
+define('STORE',               1);
+define('STATUS_ACCEPTED',     'ACCEPTED');
+define('STATUS_DEPOSIT_PAID', 'DEPOSIT_PAID');
+define('STATUS_DEFERRED',     'DEFERRED');
+define('STATUS_SIGNED',       'SIGNED');
+define('STATUS_FULLFILLED',   'FULLFILLED');
+
 Mage::app('admin');
-ob_start();
-print_r(json_decode(file_get_contents('php://input')));
-$obj = json_decode(file_get_contents('php://input'));
-$status = $obj->status;
-$content= ob_get_contents();
-if($status == 'SIGNED'){
-$order = Mage::getModel('sales/order')->loadByIncrementId(100000034);
-        $order->setData('state', "complete");
-        $order->setStatus("complete");       
-        $history = $order->addStatusHistoryComment('Order was set to Complete by our automation tool.', false);
-        $history->setIsCustomerNotified(false);
-        $order->save();
 
+$history_messages = array(
+    STATUS_ACCEPTED     => 'Credit request accepted',
+    STATUS_DEPOSIT_PAID => 'Deposit paid',
+    STATUS_DEFERRED     => 'Credit request deferred',
+    STATUS_SIGNED       => 'Constract signed',
+    STATUS_FULLFILLED   => 'Credit request fullfilled',
+);
+
+$data  = json_decode(file_get_contents('php://input'));
+$store = Mage::getSingleton('core/store')->load(STORE);
+
+if ($data->status === STATUS_ACCEPTED) {
+    $quote = Mage::getModel('sales/quote')
+        ->setStore($store)
+        ->load($data->metadata->quote_id);
+
+    // convert quote to order
+    $quote->collectTotals()->save();
+    $quote_service = Mage::getModel('sales/service_quote', $quote);
+    $quote_service->submitAll();
+
+    $order = $quote_service->getOrder();
+    $order->setData('state', 'pending_payment');
+    $order->setStatus("pending_payment");
+} else {
+    $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $data->metadata->quote_id);
 }
-ob_end_clean();
-mail("brstdev@gmail.com","Divido Callback",$status,"From:info@divido.com");
-print "ok";
 
-?>
+if ($data->status === STATUS_FULLFILLED) {
+    $order->setData('state', 'complete');
+    $order->setStatus('complete');
+}
+
+$history = $order->addStatusHistoryComment("Divido: {$history_messages[$data->status]}.", false);
+$history->setIsCustomerNotified(false);
+
+$order->save();
+
+print "ok";
