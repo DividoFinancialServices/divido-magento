@@ -2,19 +2,9 @@
 <layout version="0.1.0">
     <default>
         <reference name="head">
-            
             <action method="addItem">
-                <type>skin_js</type>
-                <name>js/jquery.nouislider.all.min.js</name>
-            </action>
-            <action method="addItem">
-                <type>skin_js</type>
-                <name>js/developer.js</name>
-            </action>
-            <action method="addItem">
-                <type>skin_css</type>
-                <name>css/jquery.nouislider.css</name>
-                <params/>
+                <type>js</type>
+                <name>divido.com/divido/checkout.js</name>
             </action>
         </reference>
     </default>

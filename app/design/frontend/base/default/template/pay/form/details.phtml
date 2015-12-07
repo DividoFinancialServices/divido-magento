@@ -28,7 +28,6 @@
 
 <ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
     <li>
-        <!--<label for="<?php echo $_code ?>_cc_type" class="required"><em>*</em><?php echo $this->__('Pay In Installments'); ?></label>-->
         <div class="payment_box payment_method_divido" style="display: block;">			
             <fieldset>
                 <img style="width:150px;float:right;margin-top:-5px;" src="<?php echo Mage::getBaseUrl('media').'/divido/'.$this->getLogo(); ?>">
@@ -70,25 +69,15 @@
                     <table style="width: 100%;">
                         <tbody>
                             <tr>
-                                <td>
-                                      <b>Deposit to pay today:</b>
-                                </td>
-                                <td>
-                                      <?php echo $this->getCurrencySymbol(); ?> <span class="divido_deposit_amount"></span>
-                                </td>
+                                <td><b>Deposit to pay today:</b> </td>
+                                <td><?php echo $this->getCurrencySymbol(); ?> <span class="divido_deposit_amount"></span> </td>
                             </tr>
                             <tr>
-                                <td>
-                                      <b>plus <span class="divido_agreement_duration">6</span> Monthly Repayments of:</b>
-                                </td>
-                                <td>
-                                      <?php echo $this->getCurrencySymbol(); ?> <span class="divido_monthly_payment_amount"></span>
-                                </td>
+                                <td><b>plus <span class="divido_agreement_duration">6</span> Monthly Repayments of:</b> </td>
+                                <td><?php echo $this->getCurrencySymbol(); ?> <span class="divido_monthly_payment_amount"></span> </td>
                             </tr>
                             <tr>
-                                <td>
-                                      <b>Total Payable including interest:</b>
-                                </td>
+                                <td><b>Total Payable including interest:</b> </td>
                                 <td>
                                     <?php echo $this->getCurrencySymbol(); ?>
                                     <span class="divido_total_repayable_amount">
@@ -97,12 +86,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                      <b>Total Interest APR:</b>
-                                </td>
-                                <td>
-                                      %<span class="divido_apr_representative_percent">0</span>
-                                </td>
+                                <td><b>Total Interest APR:</b> </td>
+                                <td><span class="divido_apr_representative_percent">0</span>%</td>
                            </tr>
                         </tbody>
                     </table>
@@ -129,6 +114,7 @@
             <script>
                 jQuery(document).ready(function($) {
 
+                    debugger
                     $.divido_campaigns = $.parseJSON('<?php echo json_encode($divido_campaigns); ?>');
                     $.divido_amount = jQuery('.divido_total_repayable_amount').html();
 

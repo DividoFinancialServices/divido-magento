@@ -83,7 +83,7 @@
                         <div class="std"><?php echo $_helper->productAttribute($_product, nl2br($_product->getShortDescription()), 'short_description') ?></div>
                     </div>
                 <?php endif;?>
-				<?php $currency_symbol = Mage::app()->getLocale()->currency( $currency_code )->getSymbol(); ?>
+				<?php $currency_code = null; $currency_symbol = Mage::app()->getLocale()->currency( $currency_code )->getSymbol(); ?>
 				<?php //$this->getLayout()->createBlock('core/template')->setTemplate('catalog/product/calculator.phtml')->toHtml(); ?>
 				
 			
@@ -181,6 +181,7 @@
         </script>
     
 	    <?php
+        xdebug_break();
 			//add the customtab to the product tab
 			$attribute = $_product->getResource()->getAttribute('divido');
 			if(is_object($attribute))
