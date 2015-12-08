@@ -31,27 +31,27 @@
 require_once(Mage::getBaseDir('lib') . '/Divido/Divido.php'); 
 abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controller_Front_Action
 {
-    
+
     /**
      * @var Divido_Pay_Model_Standard_Checkout
      */
     protected $_checkout = null;
-//
-//    /**
-//     * @var Divido_Pay_Model_Config
-//     */
+
+    /**
+     * @var Divido_Pay_Model_Config
+     */
     protected $_config = null;
-//
-//    /**
-//     * @var Mage_Sales_Model_Quote
-//     */
+
+    /**
+     * @var Mage_Sales_Model_Quote
+     */
     protected $_quote = false;
-    
+
     protected $_session = false;
-//
-//    /**
-//     * Instantiate config
-//     */
+
+    /**
+     * Instantiate config
+     */
     protected function _construct()
     {
         parent::_construct();
@@ -61,7 +61,6 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
     /**
      * Start Standard Checkout and dispatching customer to divido
      */
-     
     public function startAction()
     {
         $resource       = Mage::getSingleton('core/resource');
@@ -78,7 +77,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
         }
 
         Divido::setMerchant($apiKey);
-               
+
         $quote_cart         = Mage::getModel('checkout/cart')->getQuote();
 
         $checkout_session   = Mage::getSingleton('checkout/session');
@@ -86,50 +85,56 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
         $quote_session      = $checkout_session->getQuote();
         $quote_session_data = $quote_session->getData();
 
-        $language    = substr(Mage::getStoreConfig('general/locale/code', Mage::app()->getStore()->getId()),0,2);
+        $deposit  = $this->getRequest()->getParam('divido_deposit');
+        $finance  = $this->getRequest()->getParam('divido_finance');
+        $language = strtoupper(substr(Mage::getStoreConfig('general/locale/code', Mage::app()->getStore()->getId()),0,2));
+        $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
 
         $billAddress = $quote_session->getBillingAddress();
         $billing     = $billAddress->getData();
-        $street      = $billing['street'];
-        $city        = $billing['city'];
         $postcode    = $billing['postcode'];
-        $region      = $billing['region'];
         $telephone   = $billing['telephone'];
-        $country     = $billing['country_id'];
         $firstname   = $billing['firstname'];
         $lastname    = $billing['lastname'];
+        $country     = $billing['country_id'];
+        $email       = $quote_session_data['customer_email'];
+        $middlename  = $quote_session_data['customer_middlename'];
 
-        $subTotal    = $quote_cart->getSubtotal();
-        $grandTotal  = $quote_cart->getGrandTotal();
-
-        $item_quote    = Mage::getModel('checkout/cart')->getQuote();
-        $items_in_cart = $item_quote->getAllItems();
-
-        $products = array();
+        $item_quote     = Mage::getModel('checkout/cart')->getQuote();
+        $items_in_cart  = $item_quote->getAllItems();
+        $products       = array();
+        $products_value = 0;
         foreach ($items_in_cart as $item) {
+            $item_qty   = $item->getQty();
+            $item_value = $item->getPrice();
+
             $product = array(
-                "type" => "product",
-                "text" => $item->getName(),
-                "quantity" => $item->getQty(),
-                "value" => $item->getPrice(),
+                "type"     => "product",
+                "text"     => $item->getName(),
+                "quantity" => $item_qty,
+                "value"    => $item_value,
             );
 
+            $products_value += $item_value * $item_qty;
             array_push($products, $product);
         }
-        
-        $email      = $quote_session_data['customer_email'];
-        $middlename = $quote_session_data['customer_middlename'];
-        $order_id   = $quote_session_data['reserved_order_id'];
-        
-        $deposit  = $this->getRequest()->getParam('divido_deposit');
-        $finance  = $this->getRequest()->getParam('divido_finance');
+
+        $grandTotal        = $quote_cart->getGrandTotal();
+        $shipping_handling = $grandTotal - $products_value;
+        $products[] = array(
+            'type'     => 'product',
+            'text'     => 'Shipping & Handling',
+            'quantity' => 1,
+            'value'    => $shipping_handling,
+        );
+
         $request_data = array(
             'merchant' => $apiKey,
             'deposit'  => $deposit,
             'finance'  => $finance,
             'country'  => $country,
-            'language' => strtoupper($language),
-            'currency' => Mage::app()->getStore()->getCurrentCurrencyCode(),
+            'language' => $language,
+            'currency' => $currency,
             'metadata' => array(
                 'quote_id' => $quote_id
             ),
@@ -149,9 +154,9 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
             'redirect_url' => Mage::getUrl('customer/account/'),
         );
         $response = Divido_CreditRequest::create($request_data);
-    
+
         if ($response->status == 'ok') {
-            $this->_redirectUrl($response->url);
+            //$this->_redirectUrl($response->url);
         } else {
             if ($response->status === 'error') {
                 Mage::getSingleton('checkout/session')->addError($response->error);
@@ -159,33 +164,33 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
             }
         }
     }
-    
+
     /**
      * Cancel Standard Checkout
      */
     public function cancelAction()
     {
         try {
-                
-                // TODO verify if this logic of order cancelation is deprecated
-                // if there is an order - cancel it
-                $orderId = $this->_getCheckoutSession()->getLastOrderId();
-                $order = ($orderId) ? Mage::getModel('sales/order')->load($orderId) : false;
-                if ($order && $order->getId() && $order->getQuoteId() == $this->_getCheckoutSession()->getQuoteId()) {
-                    $order->cancel()->save();
-                    $this->_getCheckoutSession()
-                        ->unsLastQuoteId()
-                        ->unsLastSuccessQuoteId()
-                        ->unsLastOrderId()
-                        ->unsLastRealOrderId()
-                        ->addSuccess($this->__('Standard Checkout and Order have been canceled.'))
+
+            // TODO verify if this logic of order cancelation is deprecated
+            // if there is an order - cancel it
+            $orderId = $this->_getCheckoutSession()->getLastOrderId();
+            $order = ($orderId) ? Mage::getModel('sales/order')->load($orderId) : false;
+            if ($order && $order->getId() && $order->getQuoteId() == $this->_getCheckoutSession()->getQuoteId()) {
+                $order->cancel()->save();
+                $this->_getCheckoutSession()
+                    ->unsLastQuoteId()
+                    ->unsLastSuccessQuoteId()
+                    ->unsLastOrderId()
+                    ->unsLastRealOrderId()
+                    ->addSuccess($this->__('Standard Checkout and Order have been canceled.'))
                     ;
-                }
-                else
-                {
-                    $this->_getCheckoutSession()->addSuccess($this->__('Standard Checkout has been canceled.'));
-                }
-            } catch (Mage_Core_Exception $e) {
+            }
+            else
+            {
+                $this->_getCheckoutSession()->addSuccess($this->__('Standard Checkout has been canceled.'));
+            }
+        } catch (Mage_Core_Exception $e) {
             $this->_getCheckoutSession()->addError($e->getMessage());
         } catch (Exception $e) {
             $this->_getCheckoutSession()->addError($this->__('Unable to cancel Standard Checkout.'));
@@ -207,7 +212,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
             $this->_initLayoutMessages('pay/session');
             $reviewBlock = $this->getLayout()->getBlock('pay.express.review');
             $reviewBlock->setQuote($this->_getQuote());
-            
+
             $reviewBlock->getChild('details')->setQuote($this->_getQuote());
             if ($reviewBlock->getChild('shipping_method')) {
                 $reviewBlock->getChild('shipping_method')->setQuote($this->_getQuote());
@@ -300,22 +305,22 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
      */
     public function placeOrderAction()
     {
-//        echo '<pre>'; print_r($_REQUEST);echo '</pre>';
-//        die('response');
-//        $data = json_decode(@file_get_contents('php://input'));
-//        ob_start();
-//        print_r($data);
-//        $content = ob_get_contents();
-//        ob_end_clean();
-//
-//        mail("anders.hallsten@divido.com","webhook content",$content);
-//        die('hjghjg');
+        //        echo '<pre>'; print_r($_REQUEST);echo '</pre>';
+        //        die('response');
+        //        $data = json_decode(@file_get_contents('php://input'));
+        //        ob_start();
+        //        print_r($data);
+        //        $content = ob_get_contents();
+        //        ob_end_clean();
+        //
+        //        mail("anders.hallsten@divido.com","webhook content",$content);
+        //        die('hjghjg');
 
         print_r(json_decode(file_get_contents('php://input')));
-            $content = ob_get_contents();
-            echo "<pre>"; print_r($content); echo "</pre>";
-            echo $content['status'];
-            die('this');
+        $content = ob_get_contents();
+        echo "<pre>"; print_r($content); echo "</pre>";
+        echo $content['status'];
+        die('this');
 
         try {
             $requiredAgreements = Mage::helper('checkout')->getRequiredAgreementIds();
@@ -326,7 +331,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
                 }
             }
             $this->_initCheckout();
-            
+
             $this->_checkout->place();
 
             // prepare session to success or cancellation page
@@ -365,7 +370,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
                 $this->getResponse()->setRedirect($url);
                 return;
             }
-            
+
             $this->_redirect('checkout/onepage/success');
             return;
         } catch (Divido_Pay_Model_Api_ProcessableException $e) {
@@ -385,7 +390,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
         }
     }
 
-   
+
 
 
     /**
@@ -395,7 +400,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
      */
     protected function _redirectToCartAndShowError($errorMessage)
     {
-         
+
         $cart = Mage::getSingleton('checkout/cart');
         $cart->getCheckoutSession()->addError($errorMessage);
         $this->_redirect('checkout/cart');
@@ -409,20 +414,20 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
      */
     protected function _initCheckout()
     {   
-        
+
         $quote = $this->_getQuote();
-           
+
         echo '<pre>'; print_r($quote->hasItems()); echo '</pre>';
         //die('qoute');
         if (!$quote->hasItems()){
-           // die('notfound');
-                $this->getResponse()->setHeader('HTTP/1.1','403 Forbidden');
-                Mage::throwException(Mage::helper('pay')->__('Unable to initialize Standard Checkout.'));
-            }   
- else {
-     //die('found');
-     
- }
+            // die('notfound');
+            $this->getResponse()->setHeader('HTTP/1.1','403 Forbidden');
+            Mage::throwException(Mage::helper('pay')->__('Unable to initialize Standard Checkout.'));
+        }   
+        else {
+            //die('found');
+
+        }
         $this->_checkout = Mage::getSingleton($this->_checkoutType, array(
             'config' => $this->_config,
             'quote'  => $quote,
@@ -455,7 +460,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
         {   
             return Mage::getSingleton('core/session')->getPay();
         }
-     }
+    }
 
     /**
      * Return checkout quote object
@@ -464,7 +469,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
      */
     private function _getQuote()
     {
-      $this->_quote = Mage::getSingleton('checkout/session')->getQuote();
+        $this->_quote = Mage::getSingleton('checkout/session')->getQuote();
         echo '<pre>';
         print_r($this->_quote->hasItems());
         echo '</pre>';
@@ -489,5 +494,5 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
             )
         );
     }
-    
+
 }
