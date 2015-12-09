@@ -6,13 +6,19 @@ $installer->startSetup();
 /**
  * Adding Different Attributes
  */
+
+$groupName        = 'Divido';
+$attrCode         =  'divido_calculator';
+$entityTypeId     = $setup->getEntityTypeId('catalog_product');
+$defaultAttrSetId = $setup->getDefaultAttributeSetId($entityTypeId);
+
  
 // adding attribute group
-$setup->addAttributeGroup('catalog_product', 'Default', 'Divido', 1000);
- 
-// the attribute added will be displayed under the group/tab Special Attributes in product edit page
-						
-$setup->addAttribute('catalog_product', 'divido', array(
+$setup->addAttributeGroup($entityTypeId, $defaultAttrSetId, $groupName, 1000);
+$groupId = $setup->getAttributeGroupId($entityTypeId, $defaultAttrSetId, $groupName);
+
+// Add attribute
+$setup->addAttribute($entityTypeId, $attrCode, array(
     'label'        => 'Finance by Divido',
     'type'         => 'varchar',
     'input'        => 'select',
@@ -36,5 +42,10 @@ $setup->addAttribute('catalog_product', 'divido', array(
     'visible_in_advanced_search' => true,
     'unique'                     => false
 ));
+$attrId = $setup->getAttributeId($entityTypeId, $attrCode);
+
+// Connect attribute to group
+$setup->addAttributeToGroup($entityTypeId, $defaultAttrSetId, $groupId, $attrId, null);
  
+
 $installer->endSetup();
