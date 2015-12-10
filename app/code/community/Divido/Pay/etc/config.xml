@@ -6,6 +6,16 @@
            </Divido_Pay>
         </modules>
 
+        <adminhtml>
+            <layout>
+                <updates>
+                    <divido_pay>
+                        <file>divido_pay.xml</file>
+                    </divido_pay>
+                </updates>
+            </layout>
+        </adminhtml>
+
         <global>
             <models>
                 <pay>

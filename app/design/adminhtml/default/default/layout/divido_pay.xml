@@ -1,0 +1,9 @@
+<layout>
+    <adminhtml_system_config_edit>
+        <reference name="head">
+            <action method="addJs">
+                <script>Divido/divido/adminhtml/divido_pay.js</script>
+            </action>
+        </reference>
+    </adminhtml_system_config_edit>
+</layout>
