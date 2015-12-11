@@ -1,5 +1,3 @@
 #!/bin/bash
-
-cp -R ~/Dropbox/Work/Divido/src/divido-module/* ~/Dropbox/Work/Divido/src/magento1/
-rm -r ~/Dropbox/Work/Divido/src/magento1/var/cache/*
+cp -R ~/Dropbox/Work/Divido/src/divido-module/src/* ~/Dropbox/Work/Divido/src/magento1/
 date
