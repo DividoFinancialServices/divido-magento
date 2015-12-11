@@ -318,7 +318,6 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
 
         print_r(json_decode(file_get_contents('php://input')));
         $content = ob_get_contents();
-        echo "<pre>"; print_r($content); echo "</pre>";
         echo $content['status'];
         die('this');
 
@@ -390,9 +389,6 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
         }
     }
 
-
-
-
     /**
      * Redirect customer to shopping cart and show error message
      *
@@ -400,7 +396,6 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
      */
     protected function _redirectToCartAndShowError($errorMessage)
     {
-
         $cart = Mage::getSingleton('checkout/cart');
         $cart->getCheckoutSession()->addError($errorMessage);
         $this->_redirect('checkout/cart');
@@ -412,26 +407,21 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
      * @return Divido_Pay_Model_Standard_Checkout
      * @throws Mage_Core_Exception
      */
-    protected function _initCheckout()
+    protected function _initCheckout ()
     {   
 
         $quote = $this->_getQuote();
 
-        echo '<pre>'; print_r($quote->hasItems()); echo '</pre>';
-        //die('qoute');
-        if (!$quote->hasItems()){
-            // die('notfound');
+        if (! $quote->hasItems()) {
             $this->getResponse()->setHeader('HTTP/1.1','403 Forbidden');
             Mage::throwException(Mage::helper('pay')->__('Unable to initialize Standard Checkout.'));
         }   
-        else {
-            //die('found');
 
-        }
         $this->_checkout = Mage::getSingleton($this->_checkoutType, array(
             'config' => $this->_config,
             'quote'  => $quote,
         ));
+
         return $this->_checkout;
     }
 
@@ -440,7 +430,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
      *
      * 
      */
-    private function _getSession()
+    private function _getSession ()
     {
         return Mage::getSingleton('pay/session');
     }
@@ -450,14 +440,11 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
      *
      * @return Mage_Checkout_Model_Session
      */
-    protected function _getCheckoutSession()
+    protected function _getCheckoutSession ()
     {
-        if(Mage::getSingleton('checkout/session'))
-        {
+        if(Mage::getSingleton('checkout/session')) {
             return Mage::getSingleton('checkout/session');
-        }
-        else
-        {   
+        } else {   
             return Mage::getSingleton('core/session')->getPay();
         }
     }
@@ -470,11 +457,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
     private function _getQuote()
     {
         $this->_quote = Mage::getSingleton('checkout/session')->getQuote();
-        echo '<pre>';
-        print_r($this->_quote->hasItems());
-        echo '</pre>';
-        //die('get');
-        if (!$this->_quote) {
+        if (! $this->_quote) {
             $this->_quote = $this->_getCheckoutSession()->getQuote();
         }
         return $this->_quote;
@@ -494,5 +477,4 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
             )
         );
     }
-
 }
