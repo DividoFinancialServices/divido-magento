@@ -6,4 +6,11 @@
             </action>
         </reference>
     </adminhtml_system_config_edit>
+    <adminhtml_catalog_product_edit>
+        <reference name="head">
+            <action method="addJs">
+                <script>Divido/divido/adminhtml/divido_product_attributes.js</script>
+            </action>
+        </reference>
+    </adminhtml_catalog_product_edit>
 </layout>
