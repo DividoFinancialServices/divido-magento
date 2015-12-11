@@ -16,7 +16,6 @@ $setup->addAttributeGroup($entityTypeId, $defaultAttrSetId, $groupName, 1000);
 $groupId = $setup->getAttributeGroupId($entityTypeId, $defaultAttrSetId, $groupName);
 
 // Add attributes
-xdebug_break();
 $planOptionAttrCode =  'divido_plan_option';
 $setup->addAttribute($entityTypeId, $planOptionAttrCode, array(
     'label'            => 'Available on finance',
