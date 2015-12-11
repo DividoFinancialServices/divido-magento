@@ -21,5 +21,4 @@ document.observe("dom:loaded", function() {
     }
 
     divido_product_plans.initialize();
-
 });

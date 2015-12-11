@@ -1,34 +1,24 @@
 <?php
 
-require_once(Mage::getBaseDir('lib') . '/Divido/Divido.php');
-
 class Divido_Pay_Model_System_Config_Finances {
 
     public function toOptionArray () {
-        $finances = [];
+        $plans = array();
 
-        $apiKey = Mage::getStoreConfig('payment/pay/api_key');
-        if (empty($apiKey)) {
-            return $finances;
-        }        
-
-        $apiKey = Mage::helper('core')->decrypt($apiKey);
-
-        Divido::setMerchant($apiKey);        
-        $financeOptions = array('merchant' => $apiKey);
-        $response       = Divido_Finances::all($financeOptions);
-
-        if ($response->status !== 'ok') {
-            return $finances;
+        try {
+            $plans = Mage::helper('pay')->getPlans();
+        } catch (Exception $e) {
+            Mage::logException($e);
         }
         
-        foreach($response->finances as $finance) {
-            $finances[] = array(
-                'value' => $finance->id,
-                'label' => $finance->text,
+        $planOptions = array();
+        foreach($plans as $plan) {
+            $planOptions[] = array(
+                'value' => $plan->id,
+                'label' => $plan->text,
             );
         }
 
-        return $finances;
+        return $planOptions;
     }
 }
