@@ -1,11 +1,15 @@
 <?xml version="1.0"?>
 <layout version="0.1.0">
+    <default>
+		<reference name="head">
+			<block type="core/text" name="jquery">
+                <action method="setText">
+                    <text helper="pay/getScriptUrl" />
+                </action>
+			</block>
+		</reference> 
+    </default>
 	<catalog_product_view>
-        <reference name="head">
-            <action method="addJs">
-                <script>Divido/divido/frontend/product/divido_calculator.js</script>
-            </action>
-        </reference>
 		<reference name="product.info">
 			<block type="core/template" name="divido_tab" as="divido_tab" template="catalog/product/divido_calculator.phtml">
 				<action method="addToParentGroup"><group>detailed_info</group></action>
