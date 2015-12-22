@@ -21,6 +21,9 @@
             <pay>
                 <class>Divido_Pay_Model</class>
             </pay>
+            <price>
+                <class>Divido_Price_Model</class>
+            </price>
         </models>
 
         <helpers>
@@ -33,6 +36,9 @@
             <pay>
                 <class>Divido_Pay_Block</class>
             </pay>
+            <price>
+                <class>Divido_Price_Block</class>
+            </price>
         </blocks>
 
         <resources>
