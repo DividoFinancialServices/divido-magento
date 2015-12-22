@@ -38,4 +38,16 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
 
         return $plans;
     }
+
+    public function getScriptUrl ()
+    {
+        $apiKey = Mage::getStoreConfig('payment/pay/api_key');
+        if (empty($apiKey)) {
+            return '';
+        }
+
+        $apiKey = Mage::helper('core')->decrypt($apiKey);
+        $jsKey = strtolower(array_shift(explode('.', $apiKey)));
+        return "<script src=\"//content.divido.com.s3-eu-west-1.amazonaws.com/calculator/{$jsKey}.js\"></script>";
+    }
 }
