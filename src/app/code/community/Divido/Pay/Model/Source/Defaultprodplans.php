@@ -7,17 +7,7 @@ class Divido_Pay_Model_Source_Defaultprodplans extends Mage_Eav_Model_Entity_Att
             return $this->_options;
         }
 
-        $plans          = Mage::helper('pay')->getPlans();
-        $plansDisplayed = Mage::getStoreConfig('payment/pay/finances_displayed');
-        $plansSelected  = explode(',', Mage::getStoreConfig('payment/pay/finances_list'));
-
-        if ($plansDisplayed == 'selected_finances') {
-            foreach ($plans as $key => $plan) {
-                if (! in_array($plan->id, $plansSelected)) {
-                    unset($plans[$key]);
-                }
-            }
-        }
+        $plans          = Mage::helper('pay')->getGlobalSelectedPlans();
         
         $this->_options = array();
         foreach ($plans as $plan) {

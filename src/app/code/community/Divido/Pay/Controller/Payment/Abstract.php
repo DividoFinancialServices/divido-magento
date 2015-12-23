@@ -69,7 +69,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
         $query          = "Select value from $table where path = 'payment/pay/api_key'";
         $api_encode     = $readConnection->fetchOne($query);
         $apiKey         = Mage::helper('core')->decrypt($api_encode);
-        $sandbox_query  = "Select value from $table where path         = 'payment/pay/sandbox'";
+        $sandbox_query  = "Select value from $table where path = 'payment/pay/sandbox'";
         $sandbox_value  = $readConnection->fetchOne($sandbox_query);
 
         if ($sandbox_value === '1') {
