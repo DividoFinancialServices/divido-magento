@@ -94,7 +94,7 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         // Get local settings for Divido
         $productPlans    = $product['divido_plan_option'];
         $productPlanList = $product['divido_plan_selection'];
-        $productPlanList = ! empty($productPlanList) ? explode(',', $productPlanList) : null;
+        $productPlanList = ! empty($productPlanList) ? explode(',', $productPlanList) : array();
 
         if ($productPlans == 'default_plans') {
             return $globalPlans;

@@ -47,7 +47,7 @@ $setup->addAttribute($entityTypeId, $planSelectionAttrCode, array(
     'source'           => 'pay/source_defaultprodplans',
     'global'           => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_GLOBAL,
     'visible'          => true,
-    'required'         => true,
+    'required'         => false,
     'user_defined'     => true,
     'searchable'       => true,
     'filterable'       => false,
