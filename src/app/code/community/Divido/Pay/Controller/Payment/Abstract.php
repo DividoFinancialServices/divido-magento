@@ -156,7 +156,7 @@ abstract class Divido_Pay_Controller_Payment_Abstract extends Mage_Core_Controll
         $response = Divido_CreditRequest::create($request_data);
 
         if ($response->status == 'ok') {
-            //$this->_redirectUrl($response->url);
+            $this->_redirectUrl($response->url);
         } else {
             if ($response->status === 'error') {
                 Mage::getSingleton('checkout/session')->addError($response->error);
