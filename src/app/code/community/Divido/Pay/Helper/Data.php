@@ -4,9 +4,8 @@ require_once(Mage::getBaseDir('lib') . '/Divido/Divido.php');
 
 class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
 {
-    const
-        CACHE_KEY_PLANS      = 'divido_plans',
-        CACHE_LIFETIME_PLANS = 60*60;
+    const CACHE_KEY_PLANS      = 'divido_plans';
+    const CACHE_LIFETIME_PLANS = 3600;
 
     public function getAllPlans ()
     {
