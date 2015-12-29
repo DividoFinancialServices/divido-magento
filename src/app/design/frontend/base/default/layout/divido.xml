@@ -2,6 +2,22 @@
 <layout version="0.1.0">
     <default>
 		<reference name="head">
+			<!-- Pre 1.9 -->
+			<!-- 
+			<block type="core/text" name="jquery.noconflict">
+				<action method="setText">
+					<text><![CDATA[<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>]]>
+					</text>
+				</action>
+			</block>
+			<block type="core/text" name="jquery.noconflict">
+				<action method="setText">
+					<text><![CDATA[<script>var $j = jQuery.noConflict();</script>]]>
+					</text>
+				</action>
+			</block>
+			-->
+			<!-- //Pre 1.9 -->
 			<block type="core/text" name="jquery">
                 <action method="setText">
                     <text helper="pay/getScriptUrl" />
