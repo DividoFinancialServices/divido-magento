@@ -4,7 +4,7 @@
 		<reference name="head">
 			<!-- Pre 1.9 -->
 			<!-- 
-			<block type="core/text" name="jquery.noconflict">
+			<block type="core/text" name="jquery.base">
 				<action method="setText">
 					<text><![CDATA[<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>]]>
 					</text>
@@ -18,7 +18,7 @@
 			</block>
 			-->
 			<!-- //Pre 1.9 -->
-			<block type="core/text" name="jquery">
+			<block type="core/text" name="divido.base">
                 <action method="setText">
                     <text helper="pay/getScriptUrl" />
                 </action>
