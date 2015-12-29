@@ -5,6 +5,14 @@ $plans      = Mage::helper('pay')->getGlobalSelectedPlans();
 $planList   = Mage::helper('pay')->plans2list($plans);
 $grandTotal = Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal();
 ?>
+<script>
+jQuery(document).ready(function($) {
+    jQuery("[data-divido-calculator]").each(function() {
+        var elmt = jQuery(this);
+        divido_calculator(elmt);
+    });
+});
+</script>
 <div id="payment_form_<?php echo $_code ?>" style="display:none;">
     <fieldset id="divido-checkout" data-divido-calculator class="divido-calculator divido-theme-blue" data-divido-amount="<?php echo $grandTotal; ?>" data-divido-plans="<?php echo $planList; ?>">
         <h1>
