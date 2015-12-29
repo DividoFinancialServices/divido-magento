@@ -36,9 +36,9 @@
             <pay>
                 <class>Divido_Pay_Block</class>
             </pay>
-            <price>
+            <dividowidget>
                 <class>Divido_Price_Block</class>
-            </price>
+            </dividowidget>
         </blocks>
 
         <resources>
