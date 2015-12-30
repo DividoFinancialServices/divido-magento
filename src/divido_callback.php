@@ -1,8 +1,5 @@
 <?php
 require_once("app/Mage.php");
-ini_set("error_reporting",E_ALL);
-ini_set("display_errors",true);
-ini_set('html_errors', false);
 umask(0);
 
 define('STORE',               1);
