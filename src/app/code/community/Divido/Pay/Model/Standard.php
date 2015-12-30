@@ -79,9 +79,14 @@ class Divido_Pay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     public function getCheckoutRedirectUrl()
     {
 		$deposit = $_POST['divido_deposit'];
-		$campaign = $_POST['divido_campaign'];
 		$finance = $_POST['divido_finance'];
-		return Mage::getUrl('pay/payment/start',array('divido_deposit'=>$deposit,'divido_campaign'=>$campaign, "divido_finance" =>$finance));
+
+        $parameters = array(
+            'divido_deposit' => $deposit,
+            'divido_finance' => $finance
+        );
+
+        return Mage::getUrl('pay/payment/start', $parameters);
     }
     
     /**
