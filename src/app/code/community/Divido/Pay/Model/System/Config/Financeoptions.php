@@ -6,11 +6,11 @@ class Divido_Pay_Model_System_Config_Financeoptions {
         return array(
             array(
                 'value' => 'all_fincances',
-                'label' => Mage::helper('adminhtml')->__('Display all finance options'),
+                'label' => Mage::helper('adminhtml')->__('Display all plans'),
             ),
             array(
                 'value' => 'selected_finances',
-                'label' => Mage::helper('adminhtml')->__('Display selected finance options'),
+                'label' => Mage::helper('adminhtml')->__('Display selected plans'),
             ),
         );
     }
