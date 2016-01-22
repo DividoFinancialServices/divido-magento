@@ -32,6 +32,17 @@
             </pay>
         </helpers>
 
+        <events>
+            <admin_system_config_changed_section_payment>
+                <observers>
+                    <updateDefaultProductPlans>
+                        <class>Divido_Pay_Model_Observer</class>
+                        <method>updateDefaultProductPlans</method>
+                    </updateDefaultProductPlans>
+                </observers>
+            </admin_system_config_changed_section_payment>
+        </events>
+
         <blocks>
             <pay>
                 <class>Divido_Pay_Block</class>
