@@ -24,6 +24,7 @@ $setup->addAttribute($entityTypeId, $planOptionAttrCode, array(
     'backend'          => 'eav/entity_attribute_backend_array',
     'frontend'         => '',
     'source'           => 'pay/source_option',
+    'default'          => 'default_plans',
     'global'           => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_GLOBAL,
     'visible'          => true,
     'required'         => true,
