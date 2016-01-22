@@ -48,7 +48,7 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         $apiKey = Mage::helper('core')->decrypt($apiKey);
         $jsKey = strtolower(array_shift(explode('.', $apiKey)));
 
-        return "<script src=\"//content.divido.com.s3-eu-west-1.amazonaws.com/calculator/{$jsKey}.js\"></script>";
+        return "<script src=\"//cdn.divido.com/calculator/{$jsKey}.js\"></script>";
     }
 
     public function isActiveGlobal ()
@@ -86,21 +86,31 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         return true;
     }
 
+    public function getQuotePlans ($cart)
+    {
+        $items = $cart->getAllVisisbleItems();
+
+        xdebug_break();
+        foreach ($items as $item) {
+
+        }
+    }
     public function getLocalPlans ($product)
     {
-        $globalPlans = $this->getGlobalSelectedPlans();
 
-        // Get local settings for Divido
+        // Get Divido settings for product
         $productPlans    = $product['divido_plan_option'];
         $productPlanList = $product['divido_plan_selection'];
         $productPlanList = ! empty($productPlanList) ? explode(',', $productPlanList) : array();
 
         if ($productPlans == 'default_plans') {
-            return $globalPlans;
+            return $this->getAllPlans();
         }
 
+        $allPlans = $this->getAllPlans();
+
         $plans = array();
-        foreach ($globalPlans as $plan) {
+        foreach ($allPlans as $plan) {
             if (in_array($plan->id, $productPlanList)) {
                 $plans[] = $plan;
             }
