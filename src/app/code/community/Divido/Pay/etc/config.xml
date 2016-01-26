@@ -94,7 +94,7 @@
                 <active>0</active>
                 <model>pay/Standard</model>
                 <order_status>pending</order_status>
-                <title>Pay In Installments Divido</title>
+                <title>Pay In Instalments Divido</title>
                 <sort>1</sort>
             </pay>
         </payment>
