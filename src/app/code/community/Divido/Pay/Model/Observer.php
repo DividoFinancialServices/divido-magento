@@ -8,7 +8,6 @@ class Divido_Pay_Model_Observer
 
     public function updateDefaultProductPlans ($observer)
     {
-        xdebug_break();
         $helper = Mage::helper('pay');
         try {
             $plans = $helper->getGlobalSelectedPlans();

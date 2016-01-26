@@ -1,9 +1,10 @@
 <?php 
 $_code      = $this->getMethodCode();
 
-$plans      = Mage::helper('pay')->getGlobalSelectedPlans();
+$quote      = Mage::getSingleton('checkout/cart')->getQuote();
+$plans      = Mage::helper('pay')->getQuotePlans($quote);
 $planList   = Mage::helper('pay')->plans2list($plans);
-$grandTotal = Mage::getSingleton('checkout/cart')->getQuote()->getGrandTotal();
+$grandTotal = $quote->getGrandTotal();
 ?>
 <script>
 jQuery(document).ready(function($) {

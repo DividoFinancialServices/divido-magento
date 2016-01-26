@@ -14,8 +14,10 @@ $showCalc = $isActive && $plans;
 window.__DIVIDO_SHOW_CALC = <?php echo $showCalc ? 'true' : 'false'; ?>;
 
 jQuery(document).ready(function($) {
-    var tabIndex = jQuery('#divido-container').parent().parent().index('dd');
-    jQuery('.product-collateral ul.toggle-tabs li').eq(tabIndex).hide();
+    if (! window.__DIVIDO_SHOW_CALC) {
+        var tabIndex = jQuery('#divido-container').parent().parent().index('dd');
+        jQuery('.product-collateral ul.toggle-tabs li').eq(tabIndex).hide();
+    }
 });
 
 </script>

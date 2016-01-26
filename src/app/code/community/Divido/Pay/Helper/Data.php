@@ -86,25 +86,33 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         return true;
     }
 
-    public function getQuotePlans ($cart)
+    public function getQuotePlans ($quote)
     {
-        $items = $cart->getAllVisisbleItems();
 
-        xdebug_break();
+        $items = $quote->getAllVisibleItems();
+        $plans = array();
         foreach ($items as $item) {
-
+            $mock_product = array(
+                'divido_plan_selection' => $item->getProduct()->getData('divido_plan_selection'), 
+                'divido_plan_option'    => $item->getProduct()->getData('divido_plan_option'));
+            $localPlans = $this->getLocalPlans($mock_product);
+            $plans = array_merge($plans, $localPlans);
         }
+
+        return $plans;
     }
     public function getLocalPlans ($product)
     {
+        // Get Global product settings
+        $globalProdOptions = Mage::getStoreConfig('payment/pay/product_options');
 
         // Get Divido settings for product
         $productPlans    = $product['divido_plan_option'];
         $productPlanList = $product['divido_plan_selection'];
         $productPlanList = ! empty($productPlanList) ? explode(',', $productPlanList) : array();
 
-        if ($productPlans == 'default_plans') {
-            return $this->getAllPlans();
+        if ($productPlans == 'default_plans' || (empty($productPlans) && $globalProdOptions != 'products_selected')) {
+            return $this->getGlobalSelectedPlans();
         }
 
         $allPlans = $this->getAllPlans();
@@ -149,6 +157,8 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         $plansBare = array_map(function ($plan) {
             return $plan->id;
         }, $plans);
+
+        $plansBare = array_unique($plansBare);
 
         return implode(',', $plansBare);
     }
