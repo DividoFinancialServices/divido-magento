@@ -89,14 +89,22 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
     public function getQuotePlans ($quote)
     {
 
+        $grandTotal = $quote->getGrandTotal();
         $items = $quote->getAllVisibleItems();
         $plans = array();
         foreach ($items as $item) {
-            $mock_product = array(
+            $mockProduct = array(
                 'divido_plan_selection' => $item->getProduct()->getData('divido_plan_selection'), 
-                'divido_plan_option'    => $item->getProduct()->getData('divido_plan_option'));
-            $localPlans = $this->getLocalPlans($mock_product);
-            $plans = array_merge($plans, $localPlans);
+                'divido_plan_option'    => $item->getProduct()->getData('divido_plan_option')
+            );
+            $localPlans = $this->getLocalPlans($mockProduct);
+            $plans      = array_merge($plans, $localPlans);
+        }
+
+        foreach ($plans as $key => $plan) {
+            if ($plan->min_amount > $grandTotal) {
+                unset($plans[$key]);
+            }
         }
 
         return $plans;

@@ -43,13 +43,16 @@ class Divido_Pay_Model_Observer
 
     public function toggleDividoAvailability (Varien_Event_Observer $observer)
     {
-		$event        = $observer->getEvent();
-		$method       = $event->getMethodInstance();
-		$result       = $event->getResult();
-		$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
+        $event         = $observer->getEvent();
+        $method        = $event->getMethodInstance();
+        $result        = $event->getResult();
+        $currencyCode  = Mage::app()->getStore()->getCurrentCurrencyCode();
+        $rightCurrency = $currencyCode == 'GBP';
+        $quote         = $observer->quote;
+        $plans         = Mage::helper('pay')->getQuotePlans($quote);
 
-		if ($currencyCode != 'GBP' && $method->getCode() == 'pay') {
-			$result->isAvailable = false;
-		}
+        if ($method->getCode() == 'pay' && (!$rightCurrency || empty($plans))) {
+            $result->isAvailable = false;
+        }
     }
 }
