@@ -39,7 +39,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $quote_session      = $checkout_session->getQuote();
         $quote_session_data = $quote_session->getData();
 
-        $deposit  = $this->getRequest()->getParam('divido_deposit');
+        $deposit_percentage  = $this->getRequest()->getParam('divido_deposit') / 100;
         $finance  = $this->getRequest()->getParam('divido_finance');
         $language = strtoupper(substr(Mage::getStoreConfig('general/locale/code', Mage::app()->getStore()->getId()),0,2));
         $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
@@ -81,6 +81,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'quantity' => 1,
             'value'    => $shipping_handling,
         );
+
+        $deposit = round($deposit_percentage * $grandTotal, 2);
 
         $request_data = array(
             'merchant' => $apiKey,
