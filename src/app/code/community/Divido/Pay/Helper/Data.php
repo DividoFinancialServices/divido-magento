@@ -88,6 +88,9 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getQuotePlans ($quote)
     {
+        if (! $quote) {
+            return null;
+        }
 
         $grandTotal = $quote->getGrandTotal();
         $items = $quote->getAllVisibleItems();
