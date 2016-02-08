@@ -6,7 +6,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
     protected $_configType = 'pay/config';
     protected $_configMethod = 'pay';
 
-    protected function _construct()
+    protected function __construct()
     {
         parent::_construct();
         $this->_config = Mage::getModel($this->_configType, array($this->_configMethod));
