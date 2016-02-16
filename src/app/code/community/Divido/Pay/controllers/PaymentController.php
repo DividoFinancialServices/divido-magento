@@ -6,12 +6,11 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
     protected $_configType = 'pay/config';
     protected $_configMethod = 'pay';
 
-    protected function __construct()
+    protected function _construct()
     {
         parent::_construct();
         $this->_config = Mage::getModel($this->_configType, array($this->_configMethod));
     }
-
     /**
      * Start Standard Checkout and dispatching customer to divido
      */
@@ -113,7 +112,11 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $response = Divido_CreditRequest::create($request_data);
 
         if ($response->status == 'ok') {
-           $this->_redirectUrl($response->url);
+            $lookup = Mage::getModel('callback/lookup');
+            $lookup->setQuoteId($quote_id);
+            $lookup->setRequestId($response->token);
+            $lookup->save();
+            $this->_redirectUrl($response->url);
         } else {
             if ($response->status === 'error') {
                 Mage::getSingleton('checkout/session')->addError($response->error);
