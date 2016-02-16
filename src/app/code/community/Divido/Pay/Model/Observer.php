@@ -2,10 +2,6 @@
 
 class Divido_Pay_Model_Observer
 {
-    public function __construct ()
-    {
-    }
-
     public function updateDefaultProductPlans ($observer)
     {
         $helper = Mage::helper('pay');
