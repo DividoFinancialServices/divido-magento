@@ -9,26 +9,26 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getAllPlans ()
     {
-        $cache = Mage::app()->getCache();
+        $apiKey = Mage::getStoreConfig('payment/pay/api_key');
+        if (empty($apiKey)) {
+            Mage::log('API key not set', null, 'divido.log');
+            return array();
+        }        
+        $apiKey = Mage::helper('core')->decrypt($apiKey);
 
+        $cache = Mage::app()->getCache();
         if ($plans = $cache->load(self::CACHE_KEY_PLANS)) {
             $plans = unserialize($plans);
             return $plans;
         }
-
-        $apiKey = Mage::getStoreConfig('payment/pay/api_key');
-        if (empty($apiKey)) {
-            throw new Exception('API Key must be set');
-        }        
-
-        $apiKey = Mage::helper('core')->decrypt($apiKey);
 
         Divido::setMerchant($apiKey);        
         $parameters = array('merchant' => $apiKey);
         $response   = Divido_Finances::all($parameters);
 
         if ($response->status !== 'ok') {
-            throw new Exception("Could not fetch plans. Error code: {$response->error_code}");
+            Mage::log('Could not get financing plans.', null, 'divido.log');
+            return array();
         }
 
         $plans = $response->finances;
