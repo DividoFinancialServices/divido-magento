@@ -2,8 +2,8 @@
 
 class Divido_Pay_Model_Lookup extends Mage_Core_Model_Abstract
 {
-    protected function __construct ()
+    protected function _construct ()
     {
-        $this->_init('divido_pay/lookup');
+        $this->_init('callback/lookup');
     }
 }
