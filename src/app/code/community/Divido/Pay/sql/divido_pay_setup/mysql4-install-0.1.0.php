@@ -1,10 +1,43 @@
 <?php
+require_once('app/Mage.php');
+Mage::app()->setCurrentStore(Mage::getModel('core/store')->load(Mage_Core_Model_App::ADMIN_STORE_ID));
+
  
 $installer = $this;
+
 $setup = new Mage_Eav_Model_Entity_Setup('core_setup');
 $installer->startSetup();
+
 /**
- * Adding Different Attributes
+ * Adding a lookup table for Divido
+ */
+$conn = $installer->getConnection();
+$lookup_table = $conn->newTable($installer->getTable('callback/lookup'));
+$lookup_table->addColumn('lookup_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, 
+        array(
+            'identity' => true,
+            'unsigned' => true,
+            'nullable' => false,
+            'primary'  => true,
+        ), 
+        'Id'
+    )
+    ->addColumn('request_id', Varien_Db_Ddl_Table::TYPE_VARCHAR, null, 
+        array(
+            'nullable'  => false,
+        ), 
+        'Request ID'
+    )
+    ->addColumn('quote_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, 
+        array(
+            'nullable'  => false,
+        ), 
+        'Quote ID'
+    );
+$conn->createTable($lookup_table);
+
+/**
+ * Adding Divido attributes to products
  */
 
 $groupName        = 'Divido';

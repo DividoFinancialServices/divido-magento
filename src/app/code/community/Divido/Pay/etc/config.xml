@@ -24,6 +24,18 @@
             <price>
                 <class>Divido_Price_Model</class>
             </price>
+			<callback>
+				<class>Divido_Pay_Model</class>
+				<resourceModel>callback_resource</resourceModel>
+			</callback>
+			<callback_resource>
+				<class>Divido_Pay_Model_Resource</class>
+				<entities>
+                    <lookup>
+                        <table>divido_lookup</table>
+                    </lookup>
+				</entities>
+			</callback_resource>
         </models>
 
         <helpers>
@@ -94,7 +106,7 @@
                 <active>0</active>
                 <model>pay/Standard</model>
                 <order_status>pending</order_status>
-                <title>Pay In Instalments Divido</title>
+                <title>Pay in instalments with Divido</title>
                 <sort>1</sort>
             </pay>
         </payment>
