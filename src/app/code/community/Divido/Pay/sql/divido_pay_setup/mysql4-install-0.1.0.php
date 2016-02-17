@@ -22,18 +22,26 @@ $lookup_table->addColumn('lookup_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null,
         ), 
         'Id'
     )
-    ->addColumn('request_id', Varien_Db_Ddl_Table::TYPE_VARCHAR, null, 
+    ->addColumn('salt', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, 
         array(
-            'nullable'  => false,
+            'nullable' => false,
         ), 
-        'Request ID'
+        'Salt'
     )
     ->addColumn('quote_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, 
         array(
-            'nullable'  => false,
+            'nullable' => false,
+            'unsigned' => true,
         ), 
         'Quote ID'
     );
+$lookup_table->addIndex(
+    $installer->getIdxName('callback/lookup', 
+        array('quote_id'), 
+        Varien_Db_Adapter_Interface::INDEX_TYPE_UNIQUE),
+    array('quote_id'),
+    array('type' => Varien_Db_Adapter_Interface::INDEX_TYPE_UNIQUE));
+        
 $conn->createTable($lookup_table);
 
 /**
