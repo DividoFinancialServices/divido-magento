@@ -126,7 +126,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             }
 
             $lookup->save();
-            //$this->_redirectUrl($response->url);
+            $this->_redirectUrl($response->url);
         } else {
             if ($response->status === 'error') {
                 Mage::getSingleton('checkout/session')->addError($response->error);

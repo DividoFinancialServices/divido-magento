@@ -4,10 +4,10 @@ umask(0);
 
 define('STORE',               1);
 define('STATUS_ACCEPTED',     'ACCEPTED');
-define('STATUS_DEPOSIT_PAID', 'DEPOSIT_PAID');
+define('STATUS_DEPOSIT_PAID', 'DEPOSIT-PAID');
 define('STATUS_DEFERRED',     'DEFERRED');
 define('STATUS_SIGNED',       'SIGNED');
-define('STATUS_FULLFILLED',   'FULLFILLED');
+define('STATUS_FULFILLED',    'FULFILLED');
 
 Mage::app('admin');
 
@@ -16,11 +16,13 @@ $history_messages = array(
     STATUS_DEPOSIT_PAID => 'Deposit paid',
     STATUS_DEFERRED     => 'Credit request deferred',
     STATUS_SIGNED       => 'Constract signed',
-    STATUS_FULLFILLED   => 'Credit request fullfilled',
+    STATUS_FULFILLED    => 'Credit request fulfilled',
 );
 
 $data  = json_decode(file_get_contents('php://input'));
 $store = Mage::getSingleton('core/store')->load(STORE);
+
+Mage::log('Divido request: ' . serialize($data), null, 'divido.log');
 
 $lookup = Mage::getModel('callback/lookup');
 $lookup->load($data->metadata->quote_id, 'quote_id');
@@ -53,7 +55,7 @@ if ($data->status === STATUS_ACCEPTED) {
     $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $data->metadata->quote_id);
 }
 
-if ($data->status === STATUS_FULLFILLED) {
+if ($data->status === STATUS_FULFILLED) {
     $order->setData('state', 'complete');
     $order->setStatus('complete');
 }
