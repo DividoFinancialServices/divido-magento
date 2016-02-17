@@ -22,6 +22,20 @@ $history_messages = array(
 $data  = json_decode(file_get_contents('php://input'));
 $store = Mage::getSingleton('core/store')->load(STORE);
 
+$lookup = Mage::getModel('callback/lookup');
+$lookup->load($data->metadata->quote_id, 'quote_id');
+if (! $lookup->getId()) {
+    Mage::log('Bad request, could not find lookup. Req: ' . serialize($data), null, 'divido.log');
+    exit('Cannot verify request');
+}
+
+$salt = $lookup->getSalt();
+$hash = Mage::helper('pay')->hashQuote($salt, $data->metadata->quote_id);
+if ($hash !== $data->metadata->quote_hash) {
+    Mage::log('Bad request, mismatch in hash. Req: ' . serialize($data), null, 'divido.log');
+    exit('Cannot verify request');
+}
+
 if ($data->status === STATUS_ACCEPTED) {
     $quote = Mage::getModel('sales/quote')
         ->setStore($store)
