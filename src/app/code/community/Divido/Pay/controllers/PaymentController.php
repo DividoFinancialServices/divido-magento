@@ -83,6 +83,9 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $deposit = round($deposit_percentage * $grandTotal, 2);
 
+        $salt = uniqid('', true);
+        $quote_hash = Mage::helper('pay')->hashQuote($salt, $quote_id);
+
         $request_data = array(
             'merchant' => $apiKey,
             'deposit'  => $deposit,
@@ -91,7 +94,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'language' => $language,
             'currency' => $currency,
             'metadata' => array(
-                'quote_id' => $quote_id
+                'quote_id'   => $quote_id,
+                'quote_hash' => $quote_hash,
             ),
             'customer' => array(
                 'title'         => '',
@@ -114,9 +118,15 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         if ($response->status == 'ok') {
             $lookup = Mage::getModel('callback/lookup');
             $lookup->setQuoteId($quote_id);
-            $lookup->setRequestId($response->token);
+            $lookup->setSalt($salt);
+
+            $existing_lookup = Mage::getModel('callback/lookup')->load($quote_id, 'quote_id');
+            if ($existing_lookup->getId()) {
+                $lookup->setId($existing_lookup->getId());
+            }
+
             $lookup->save();
-            $this->_redirectUrl($response->url);
+            //$this->_redirectUrl($response->url);
         } else {
             if ($response->status === 'error') {
                 Mage::getSingleton('checkout/session')->addError($response->error);
