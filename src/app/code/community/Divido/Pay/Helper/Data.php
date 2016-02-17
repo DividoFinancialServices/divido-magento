@@ -173,4 +173,9 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
 
         return implode(',', $plansBare);
     }
+
+    public function hashQuote ($salt, $quote_id)
+    {
+        return hash('sha256', $salt.$quote_id);
+    }
 }
