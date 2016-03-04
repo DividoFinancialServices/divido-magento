@@ -10,7 +10,7 @@ class Divido_Pay_Model_System_Config_Productoptions {
             ),
             array(
                 'value' => 'products_selected',
-                'label' => Mage::helper('adminhtml')->__('Selected products'),
+                'label' => Mage::helper('adminhtml')->__('Only selected products'),
             ),
             array(
                 'value' => 'products_price_treshold',
