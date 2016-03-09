@@ -2,32 +2,18 @@
 require_once(Mage::getBaseDir('lib') . '/Divido/Divido.php'); 
 class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 {
-    protected $_config = null;
-    protected $_configType = 'pay/config';
-    protected $_configMethod = 'pay';
-
-    protected function _construct()
-    {
-        parent::_construct();
-        $this->_config = Mage::getModel($this->_configType, array($this->_configMethod));
-    }
     /**
      * Start Standard Checkout and dispatching customer to divido
      */
+
     public function startAction()
     {
         $resource       = Mage::getSingleton('core/resource');
         $readConnection = $resource->getConnection('core_read');
         $table          = $resource->getTableName('core_config_data');
-        $query          = "Select value from $table where path = 'payment/pay/api_key'";
+        $query          = "select value from $table where path = 'payment/pay/api_key'";
         $api_encode     = $readConnection->fetchOne($query);
         $apiKey         = Mage::helper('core')->decrypt($api_encode);
-        $sandbox_query  = "Select value from $table where path = 'payment/pay/sandbox'";
-        $sandbox_value  = $readConnection->fetchOne($sandbox_query);
-
-        if ($sandbox_value === '1') {
-            Divido::setSandboxMode(true);
-        }
 
         Divido::setMerchant($apiKey);
 
