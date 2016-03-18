@@ -204,10 +204,13 @@
 	padding:20px;
 }
 
+.divido-calculator select {
+    color: #000;
+}
 
 /* 			*/
 
-.divido-them-light .divido-info {
+.divido-theme-light .divido-info {
 	background:#f9f9f9;
 }
 
@@ -311,3 +314,4 @@
 .divido-widget img {
     display: inline-block;
 }
+
