@@ -5,7 +5,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
     /**
      * Start Standard Checkout and dispatching customer to divido
      */
-
     public function startAction()
     {
         $resource       = Mage::getSingleton('core/resource');
@@ -42,10 +41,9 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $item_quote     = Mage::getModel('checkout/cart')->getQuote();
         $items_in_cart  = $item_quote->getAllItems();
         $products       = array();
-        $products_value = 0;
         foreach ($items_in_cart as $item) {
-            $item_qty   = $item->getQty();
-            $item_value = $item->getPrice();
+            $item_qty      = $item->getQty();
+            $item_value    = $item->getPrice();
 
             $product = array(
                 "type"     => "product",
@@ -54,12 +52,14 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
                 "value"    => $item_value,
             );
 
-            $products_value += $item_value * $item_qty;
             array_push($products, $product);
         }
 
-        $grandTotal        = $quote_cart->getGrandTotal();
-        $shipping_handling = $grandTotal - $products_value;
+        $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
+        $total_discount    = $totals['discount']->getValue();
+        $shipping_handling = $totals['shipping']->getValue();
+        $grand_total       = $totals['grand_total']->getValue();
+
         $products[] = array(
             'type'     => 'product',
             'text'     => 'Shipping & Handling',
@@ -67,7 +67,16 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'value'    => $shipping_handling,
         );
 
-        $deposit = round($deposit_percentage * $grandTotal, 2);
+        if (! empty($total_discount)) {
+            $products[] = array(
+                'type'     => 'product',
+                'text'     => 'Discounts',
+                'quantity' => 1,
+                'value'    => $total_discount,
+            );
+        }
+
+        $deposit = round($deposit_percentage * $grand_total, 2);
 
         $salt = uniqid('', true);
         $quote_hash = Mage::helper('pay')->hashQuote($salt, $quote_id);
