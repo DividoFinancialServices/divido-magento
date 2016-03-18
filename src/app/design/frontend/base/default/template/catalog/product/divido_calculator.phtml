@@ -1,7 +1,8 @@
 <?php
 // Get local settings for Divido
-$product  = Mage::registry('product');
-$isActive = Mage::helper('pay')->isActiveLocal($product);
+$product     = Mage::registry('product');
+$priceincvat = Mage::helper('tax')->getPrice($product, $product->getPrice());
+$isActive    = Mage::helper('pay')->isActiveLocal($product);
 
 if ($isActive) {
     $plans    = Mage::helper('pay')->getLocalPlans($product);
@@ -24,7 +25,7 @@ jQuery(document).ready(function($) {
 
 <div id="divido-container">
     <?php if ($showCalc): ?>
-    <div class="divido-calculator divido-theme-blue" data-divido-calculator data-divido-plans="<?php echo $planList; ?>" data-divido-amount="<?php echo $product['price']; ?>">
+    <div class="divido-calculator divido-theme-blue" data-divido-calculator data-divido-plans="<?php echo $planList; ?>" data-divido-amount="<?php echo $priceincvat; ?>">
         
         <h1>
             <a href="https://www.divido.com" target="_blank" class="divido-logo divido-logo-sm" style="float:right;">Divido</a>
