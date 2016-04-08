@@ -56,16 +56,27 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         }
 
         $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
-        $total_discount    = $totals['discount']->getValue();
-        $shipping_handling = $totals['shipping']->getValue();
-        $grand_total       = $totals['grand_total']->getValue();
 
-        $products[] = array(
-            'type'     => 'product',
-            'text'     => 'Shipping & Handling',
-            'quantity' => 1,
-            'value'    => $shipping_handling,
-        );
+        $total_discount = null;
+        if (isset($totals['discount']) && $_discount = $totals['discount']) {
+            $total_discount = $_discount->getValue();
+        }
+
+        $shipping_handling = null;
+        if (isset($totals['shipping']) && $_shipping = $totals['shipping']) {
+            $shipping_handling = $_shipping->getValue();
+        }
+
+        $grand_total = $totals['grand_total']->getValue();
+
+        if (! empty($shipping_handling)) {
+            $products[] = array(
+                'type'     => 'product',
+                'text'     => 'Shipping & Handling',
+                'quantity' => 1,
+                'value'    => $shipping_handling,
+            );
+        }
 
         if (! empty($total_discount)) {
             $products[] = array(
