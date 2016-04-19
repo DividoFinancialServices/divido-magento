@@ -23,6 +23,7 @@ $data  = json_decode(file_get_contents('php://input'));
 $store = Mage::getSingleton('core/store')->load(STORE);
 
 Mage::log('Divido request: ' . serialize($data), null, 'divido.log');
+xdebug_Break();
 
 $lookup = Mage::getModel('callback/lookup');
 $lookup->load($data->metadata->quote_id, 'quote_id');
@@ -38,7 +39,10 @@ if ($hash !== $data->metadata->quote_hash) {
     exit('Cannot verify request');
 }
 
-if ($data->status === STATUS_ACCEPTED) {
+
+$order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $data->metadata->quote_id);
+
+if (! $order->getId()) {
     $quote = Mage::getModel('sales/quote')
         ->setStore($store)
         ->load($data->metadata->quote_id);
@@ -50,9 +54,7 @@ if ($data->status === STATUS_ACCEPTED) {
 
     $order = $quote_service->getOrder();
     $order->setData('state', 'pending_payment');
-    $order->setStatus("pending_payment");
-} else {
-    $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $data->metadata->quote_id);
+    $order->setStatus('pending_payment');
 }
 
 if ($data->status === STATUS_FULFILLED) {
