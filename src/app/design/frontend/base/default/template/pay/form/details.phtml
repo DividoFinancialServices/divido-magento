@@ -5,14 +5,6 @@ $plans      = Mage::helper('pay')->getQuotePlans($quote);
 $planList   = Mage::helper('pay')->plans2list($plans);
 $grandTotal = $quote->getGrandTotal();
 ?>
-<script>
-jQuery(document).ready(function($) {
-    jQuery("[data-divido-calculator]").each(function() {
-        var elmt = jQuery(this);
-        divido_calculator(elmt);
-    });
-});
-</script>
 <div id="payment_form_<?php echo $_code ?>" style="display:none;">
     <fieldset id="divido-checkout" data-divido-calculator class="divido-calculator divido-theme-blue" data-divido-amount="<?php echo $grandTotal; ?>" data-divido-plans="<?php echo $planList; ?>">
         <h1>
@@ -49,3 +41,10 @@ jQuery(document).ready(function($) {
         <p>You will be redirected to Divido to complete this finance application when you place your order</p>
     </fieldset>
 </div>
+<script>
+var calculators = document.querySelectorAll('[data-divido-calculator]');
+Array.prototype.forEach.call(calculators, function(calculator, i) {
+    console.log(calculator);
+    divido_calculator(calculator);
+});
+</script>
