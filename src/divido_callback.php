@@ -23,7 +23,6 @@ $data  = json_decode(file_get_contents('php://input'));
 $store = Mage::getSingleton('core/store')->load(STORE);
 
 Mage::log('Divido request: ' . serialize($data), null, 'divido.log');
-xdebug_Break();
 
 $lookup = Mage::getModel('callback/lookup');
 $lookup->load($data->metadata->quote_id, 'quote_id');
