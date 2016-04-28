@@ -128,15 +128,5 @@
                 </divido_pay>
             </updates>
         </layout>
-        <events>
-            <payment_method_is_active>
-                <observers>
-                    <toggleDividoAvailability>
-                        <class>Divido_Pay_Model_Observer</class>
-                        <method>toggleDividoAvailability</method>
-                    </toggleDividoAvailability>
-                </observers>
-            </payment_method_is_active>
-        </events>
     </frontend>
 </config>
