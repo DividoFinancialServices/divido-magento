@@ -46,18 +46,20 @@ if (! $order->getId()) {
         ->load($data->metadata->quote_id);
 
     // convert quote to order
-    $quote->collectTotals()->save();
+    $quote->collectTotals();
     $quote_service = Mage::getModel('sales/service_quote', $quote);
     $quote_service->submitAll();
+    $quote->save();
 
     $order = $quote_service->getOrder();
-    $order->setData('state', 'pending_payment');
+    $order->setData('state', 'new');
     $order->setStatus('pending_payment');
 }
 
 if ($data->status === STATUS_FULFILLED) {
     $order->setData('state', 'complete');
     $order->setStatus('complete');
+    $order->queueNewOrderEmail();
 }
 
 $history = $order->addStatusHistoryComment("Divido: {$history_messages[$data->status]}.", false);
