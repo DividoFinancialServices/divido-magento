@@ -139,12 +139,31 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             }
 
             $lookup->save();
-            $this->_redirectUrl($response->url);
+
+            $this->getResponse()->setRedirect($response->url);
+            return;
         } else {
             if ($response->status === 'error') {
                 Mage::getSingleton('checkout/session')->addError($response->error);
                 $this->_redirect('checkout/cart');
             }
         }
+    }
+
+    public function returnAction ()
+    {
+        $session = Mage::getSingleton('checkout/session');
+        $quoteId = $_GET['quote_id'];
+        $quote = Mage::getModel('sales/quote')->load($quoteId);
+
+        $session->setLastQuoteId($quoteId)->setLastSuccessQuoteId($quoteId);
+
+        $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $quoteId);
+        if ($orderId = $order->getId()) {
+            $session->setLastOrderId($orderId)
+                ->setLastRealOrderId($order->getIncrementId());
+        }
+
+        $this->_redirect('checkout/onepage/success');
     }
 } 
