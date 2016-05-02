@@ -117,6 +117,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             ),
             'products' => $products,
             'response_url' => Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . 'divido_callback.php',
+            'checkout_url' => Mage::helper('checkout/url')->getCheckoutUrl(),
             'redirect_url' => Mage::getUrl('customer/account/'),
         );
 
