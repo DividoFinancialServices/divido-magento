@@ -108,5 +108,14 @@ class Divido_Pay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     {
         return $this->getCheckout()->getQuote();
     }
+
+    public function isAvailable ($quote = null)
+    {
+        $hasPlans     = Mage::helper('pay')->getQuotePlans($quote);
+        $billingAddr  = $quote->getBillingAddress()->getData();
+        $rightCountry = $billingAddr['country_id'] == 'GB';
+
+        return $hasPlans && $rightCountry;
+    }
 }
 ?>

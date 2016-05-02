@@ -38,7 +38,6 @@ if ($hash !== $data->metadata->quote_hash) {
     exit('Cannot verify request');
 }
 
-
 $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $data->metadata->quote_id);
 
 if (! $order->getId()) {

@@ -41,6 +41,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $item_quote     = Mage::getModel('checkout/cart')->getQuote();
         $items_in_cart  = $item_quote->getAllItems();
         $products       = array();
+
         foreach ($items_in_cart as $item) {
             $item_qty      = $item->getQty();
             $item_value    = $item->getPrice();
