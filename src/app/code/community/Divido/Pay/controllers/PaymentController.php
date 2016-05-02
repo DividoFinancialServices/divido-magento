@@ -93,32 +93,36 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $salt = uniqid('', true);
         $quote_hash = Mage::helper('pay')->hashQuote($salt, $quote_id);
 
+        $customer = array(
+            'title'         => '',
+            'first_name'    => $firstname,
+            'middle_name'   => $middlename,
+            'last_name'     => $lastname,
+            'country'       => $country,
+            'postcode'      => $postcode,
+            'email'         => $email,
+            'mobile_number' => '',
+            'phone_number'  => $telephone,
+        );
+
+        $metadata = array(
+            'quote_id'   => $quote_id,
+            'quote_hash' => $quote_hash,
+        );
+
         $request_data = array(
-            'merchant' => $apiKey,
-            'deposit'  => $deposit,
-            'finance'  => $finance,
-            'country'  => $country,
-            'language' => $language,
-            'currency' => $currency,
-            'metadata' => array(
-                'quote_id'   => $quote_id,
-                'quote_hash' => $quote_hash,
-            ),
-            'customer' => array(
-                'title'         => '',
-                'first_name'    => $firstname,
-                'middle_name'   => $middlename,
-                'last_name'     => $lastname,
-                'country'       => $country,
-                'postcode'      => $postcode,
-                'email'         => $email,
-                'mobile_number' => '',
-                'phone_number'  => $telephone,
-            ),
-            'products' => $products,
+            'merchant'     => $apiKey,
+            'deposit'      => $deposit,
+            'finance'      => $finance,
+            'country'      => $country,
+            'language'     => $language,
+            'currency'     => $currency,
+            'metadata'     => $metadata,
+            'customer'     => $customer,
+            'products'     => $products,
             'response_url' => Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . 'divido_callback.php',
             'checkout_url' => Mage::helper('checkout/url')->getCheckoutUrl(),
-            'redirect_url' => Mage::getUrl('customer/account/'),
+            'redirect_url' => Mage::getUrl('pay/payment/return'),
         );
 
         $response = Divido_CreditRequest::create($request_data);
