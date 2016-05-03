@@ -46,6 +46,9 @@ if ($hash !== $data->metadata->quote_hash) {
     exit('Cannot verify request');
 }
 
+$lookup->setCreditApplicationId($data->application);
+$lookup->save();
+
 $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $data->metadata->quote_id);
 
 if (! $order->getId()) {
