@@ -105,7 +105,8 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         foreach ($plans as $key => $plan) {
-            if ($plan->min_amount > $grandTotal) {
+            $planMinTotal = $grandTotal - ($grandTotal * ($plan->min_deposit / 100));
+            if ($plan->min_amount > $planMinTotal) {
                 unset($plans[$key]);
             }
         }
