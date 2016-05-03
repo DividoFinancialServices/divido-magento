@@ -4,19 +4,27 @@ umask(0);
 
 define('STORE',               1);
 define('STATUS_ACCEPTED',     'ACCEPTED');
-define('STATUS_DEPOSIT_PAID', 'DEPOSIT-PAID');
+define('STATUS_CANCELED',     'CANCELED');
+define('STATUS_COMPLETED',    'COMPLETED');
 define('STATUS_DEFERRED',     'DEFERRED');
-define('STATUS_SIGNED',       'SIGNED');
+define('STATUS_DECLINED',     'DECLINED');
+define('STATUS_DEPOSIT_PAID', 'DEPOSIT-PAID');
 define('STATUS_FULFILLED',    'FULFILLED');
+define('STATUS_REFERRED',     'REFERRED');
+define('STATUS_SIGNED',       'SIGNED');
 
 Mage::app('admin');
 
 $history_messages = array(
     STATUS_ACCEPTED     => 'Credit request accepted',
-    STATUS_DEPOSIT_PAID => 'Deposit paid',
-    STATUS_DEFERRED     => 'Credit request deferred',
-    STATUS_SIGNED       => 'Constract signed',
+    STATUS_CANCELED     => 'Application canceled',
+    STATUS_COMPLETED    => 'Application completed',
+    STATUS_DEFERRED     => 'Application deferred by Underwriter, waiting for new status',
+    STATUS_DECLINED     => 'Applicaiton declined by Underwriter',
+    STATUS_DEPOSIT_PAID => 'Deposit paid by customer',
     STATUS_FULFILLED    => 'Credit request fulfilled',
+    STATUS_REFERRED     => 'Credit request referred by Underwriter, waiting for new status',
+    STATUS_SIGNED       => 'Customer have signed all contracts',
 );
 
 $data  = json_decode(file_get_contents('php://input'));
@@ -62,8 +70,10 @@ if ($data->status === STATUS_FULFILLED) {
     $order->queueNewOrderEmail();
 }
 
-$history = $order->addStatusHistoryComment("Divido: {$history_messages[$data->status]}.", false);
-$history->setIsCustomerNotified(false);
+if (isset($history_messages[$data->status])) {
+    $history = $order->addStatusHistoryComment("Divido: {$history_messages[$data->status]}.", false);
+    $history->setIsCustomerNotified(false);
+}
 
 $order->save();
 
