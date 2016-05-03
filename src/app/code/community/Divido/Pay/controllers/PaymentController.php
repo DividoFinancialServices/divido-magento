@@ -43,8 +43,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $products       = array();
 
         foreach ($items_in_cart as $item) {
-            $item_qty      = $item->getQty();
-            $item_value    = $item->getPrice();
+            $item_qty   = $item->getQty();
+            $item_value = $item->getPriceInclTax();
 
             $product = array(
                 "type"     => "product",
@@ -65,7 +65,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $shipping_handling = null;
         if (isset($totals['shipping']) && $_shipping = $totals['shipping']) {
-            $shipping_handling = $_shipping->getValue();
+            $shipping_handling = $_shipping->getAddress()->getShippingInclTax();
         }
 
         $grand_total = $totals['grand_total']->getValue();
@@ -153,8 +153,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
     public function returnAction ()
     {
         $session = Mage::getSingleton('checkout/session');
-        $quoteId = $_GET['quote_id'];
-        $quote = Mage::getModel('sales/quote')->load($quoteId);
+        $quoteId = $this->getRequest()->getParam('quote_id');
+        $quote   = Mage::getModel('sales/quote')->load($quoteId);
 
         $session->setLastQuoteId($quoteId)->setLastSuccessQuoteId($quoteId);
 
@@ -166,4 +166,4 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $this->_redirect('checkout/onepage/success');
     }
-} 
+}
