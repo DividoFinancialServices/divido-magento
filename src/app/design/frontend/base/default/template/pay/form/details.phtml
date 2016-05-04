@@ -6,7 +6,7 @@ $planList   = Mage::helper('pay')->plans2list($plans);
 $grandTotal = $quote->getGrandTotal();
 ?>
 <div id="payment_form_<?php echo $_code ?>" style="display:none;">
-    <fieldset id="divido-checkout" data-divido-calculator class="divido-calculator divido-theme-blue" data-divido-amount="<?php echo $grandTotal; ?>" data-divido-plans="<?php echo $planList; ?>">
+    <fieldset id="divido-checkout" data-divido-calculator class="divido-calculator divido-theme-blue" data-divido-amount="<?php echo $grandTotal; ?>" data-divido-plans="<?php echo $planList; ?>" data-divido-filter-plans="1">
         <h1>
             <a href="https://www.divido.com" target="_blank" class="divido-logo divido-logo-sm" style="float:right;">Divido</a>
             Pay in instalments
