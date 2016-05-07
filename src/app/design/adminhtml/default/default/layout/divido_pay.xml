@@ -16,8 +16,8 @@
     <adminhtml_sales_order_view>
         <reference name="sales_order_tabs">
             <action method="addTab">
-                <name>Divido</name>
-                <block>the_block_alias_of_your_module/path_to_your_tab_file</block>
+                <name>divido_tab</name>
+                <block>pay/adminhtml_sales_order_divido</block>
             </action>
         </reference>
     </adminhtml_sales_order_view>
