@@ -2,6 +2,8 @@
 require_once("app/Mage.php");
 umask(0);
 
+Mage::app('admin');
+
 define('STORE',               1);
 define('STATUS_ACCEPTED',     'ACCEPTED');
 define('STATUS_CANCELED',     'CANCELED');
@@ -13,9 +15,7 @@ define('STATUS_FULFILLED',    'FULFILLED');
 define('STATUS_REFERRED',     'REFERRED');
 define('STATUS_SIGNED',       'SIGNED');
 
-Mage::app('admin');
-
-$history_messages = array(
+$historyMessages = array(
     STATUS_ACCEPTED     => 'Credit request accepted',
     STATUS_CANCELED     => 'Application canceled',
     STATUS_COMPLETED    => 'Application completed',
@@ -27,10 +27,10 @@ $history_messages = array(
     STATUS_SIGNED       => 'Customer have signed all contracts',
 );
 
+$noGo = array(STATUS_CANCELED, STATUS_DECLINED);
+
 $data  = json_decode(file_get_contents('php://input'));
 $store = Mage::getSingleton('core/store')->load(STORE);
-
-Mage::log('Divido request: ' . serialize($data), null, 'divido.log');
 
 $lookup = Mage::getModel('callback/lookup');
 $lookup->load($data->metadata->quote_id, 'quote_id');
@@ -51,6 +51,11 @@ $lookup->save();
 
 $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $data->metadata->quote_id);
 
+if (! $order->getId() && in_array($data->status, $noGo)) {
+    Mage::log("Quote: {$data->metadata->quote_id}, Status: {$data->status}", null, 'divido.log');
+    exit('ok');
+}
+
 if (! $order->getId()) {
     $quote = Mage::getModel('sales/quote')
         ->setStore($store)
@@ -67,17 +72,17 @@ if (! $order->getId()) {
     $order->setStatus('pending_payment');
 }
 
-if ($data->status === STATUS_FULFILLED) {
+if ($data->status === STATUS_COMPLETED) {
     $order->setData('state', 'complete');
     $order->setStatus('complete');
     $order->queueNewOrderEmail();
 }
 
-if (isset($history_messages[$data->status])) {
-    $history = $order->addStatusHistoryComment("Divido: {$history_messages[$data->status]}.", false);
+if (isset($historyMessages[$data->status])) {
+    $history = $order->addStatusHistoryComment("Divido: {$historyMessages[$data->status]}.", false);
     $history->setIsCustomerNotified(false);
 }
 
 $order->save();
 
-print "ok";
+echo "ok";
