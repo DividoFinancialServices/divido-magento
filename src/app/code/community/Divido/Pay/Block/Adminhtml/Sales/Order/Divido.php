@@ -39,7 +39,6 @@ class Divido_Pay_Block_Adminhtml_Sales_Order_Divido
 
     public function getDividoInfo ()
     {
-        xdebug_break();
         $dividoInfo = array(
             'proposal_id' => null,
             'application_id' => null,
