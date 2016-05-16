@@ -132,6 +132,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $lookup->setQuoteId($quote_id);
             $lookup->setSalt($salt);
             $lookup->setCreditRequestId($response->id);
+            $lookup->setDepositAmount($deposit);
 
             $existing_lookup = Mage::getModel('callback/lookup')->load($quote_id, 'quote_id');
             if ($existing_lookup->getId()) {
