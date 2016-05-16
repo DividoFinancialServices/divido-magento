@@ -69,16 +69,17 @@ if (! $order->getId()) {
 
     $order = $quote_service->getOrder();
     $order->setData('state', 'new');
-    $order->setStatus('pending_payment');
+    //$order->setStatus('pending_payment');
 }
 
+/*
 if ($data->status === STATUS_DEPOSIT_PAID) {
     $order->setTotalPaid($lookup->getDepositAmount());
 }
+*/
 
-if ($data->status === STATUS_COMPLETED) {
-    $order->setData('state', 'complete');
-    $order->setStatus('complete');
+if ($data->status === STATUS_SIGNED) {
+    $order->setData('state', 'processing');
     $order->queueNewOrderEmail();
 }
 
