@@ -40,14 +40,17 @@ class Divido_Pay_Block_Adminhtml_Sales_Order_Divido
     public function getDividoInfo ()
     {
         $dividoInfo = array(
-            'proposal_id' => null,
+            'proposal_id'    => null,
             'application_id' => null,
+            'deposit_amount' => null,
         );
         
         $order   = $this->getOrder();
         $quoteId = $order->getQuoteId();
+
         $lookup  = Mage::getModel('callback/lookup');
         $lookup->load($quoteId, 'quote_id');
+
         if ($lookup->getId()) {
             if ($proposalId = $lookup->getCreditRequestId()) {
                 $dividoInfo['proposal_id'] = $proposalId;
@@ -55,6 +58,10 @@ class Divido_Pay_Block_Adminhtml_Sales_Order_Divido
 
             if ($applicationId = $lookup->getCreditApplicationId()) {
                 $dividoInfo['application_id'] = $applicationId;
+            }
+
+            if ($depositAmount = $lookup->getDepositAmount()) {
+                $dividoInfo['deposit_amount'] = $depositAmount;
             }
         }
 
