@@ -28,15 +28,15 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $language = strtoupper(substr(Mage::getStoreConfig('general/locale/code', Mage::app()->getStore()->getId()),0,2));
         $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
 
-        $billAddress = $quote_session->getBillingAddress();
-        $billing     = $billAddress->getData();
-        $postcode    = $billing['postcode'];
-        $telephone   = $billing['telephone'];
-        $firstname   = $billing['firstname'];
-        $lastname    = $billing['lastname'];
-        $country     = $billing['country_id'];
-        $email       = $quote_session_data['customer_email'];
-        $middlename  = $quote_session_data['customer_middlename'];
+        $shipAddr   = $quote_session->getShippingAddress();
+        $shipping   = $shipAddr->getData();
+        $postcode   = $billing['postcode'];
+        $telephone  = $shipping['telephone'];
+        $firstname  = $shipping['firstname'];
+        $lastname   = $shipping['lastname'];
+        $country    = $shipping['country_id'];
+        $email      = $quote_session_data['customer_email'];
+        $middlename = $quote_session_data['customer_middlename'];
 
         $item_quote     = Mage::getModel('checkout/cart')->getQuote();
         $items_in_cart  = $item_quote->getAllItems();
