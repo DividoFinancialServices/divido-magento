@@ -1,6 +1,7 @@
 <?php
 
 $quote_id = $argv[1];
+$status = $argv[2];
 
 $db = new mysqli('localhost', 'root', 'root', 'magento_19');
 if ($db->connect_errno) {
@@ -28,7 +29,10 @@ $statuses = [
    8 => 'CANCELED',
 ];
 
-$status = $statuses[0];
+if (! $status) {
+    $status = $statuses[0];
+}
+
 $hash = hash('sha256', $salt.$quote_id);
 
 $req_tpl = [
