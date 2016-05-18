@@ -5,6 +5,9 @@ umask(0);
 Mage::app('admin');
 
 define('STORE',                1);
+
+define('NEW_STATUS',           'processing');
+
 define('STATUS_ACCEPTED',      'ACCEPTED');
 define('STATUS_ACTION_LENDER', 'ACTION-LENDER');
 define('STATUS_CANCELED',      'CANCELED');
@@ -106,7 +109,11 @@ if ($data->status === STATUS_DEPOSIT_PAID) {
 */
 
 if ($data->status === STATUS_SIGNED) {
-    $order->setData('status', 'processing');
+    $newStatus = NEW_STATUS;
+    if ($statusOverride = $apiKey = Mage::getStoreConfig('payment/pay/order_status')) {
+        $newStatus = $statusOverride;
+    }
+    $order->setData('status', $newStatus);
     $order->queueNewOrderEmail();
 }
 
