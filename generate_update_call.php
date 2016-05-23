@@ -3,7 +3,7 @@
 $quote_id = $argv[1];
 $status = $argv[2];
 
-$db = new mysqli('localhost', 'root', 'root', 'magento_19');
+$db = new mysqli('magento19.divido.dev', 'root', '', 'magento_19');
 if ($db->connect_errno) {
     die($db->connect_error);
 }
@@ -29,10 +29,6 @@ $statuses = [
    8 => 'CANCELED',
 ];
 
-if (! $status) {
-    $status = $statuses[0];
-}
-
 $hash = hash('sha256', $salt.$quote_id);
 
 $req_tpl = [
@@ -49,4 +45,6 @@ $req_tpl = [
 $data = json_encode($req_tpl);
 $cmd = "curl -v -X POST -d '{$data}' -H 'Content-Type: application/json' {$url}";
 
-echo $cmd;
+system($cmd);
+
+echo "\n\nhttp://magento20.divido.dev/divido/financing/success/?quote_id={$quote_id}";
