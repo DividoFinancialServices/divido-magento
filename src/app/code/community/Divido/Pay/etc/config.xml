@@ -103,7 +103,7 @@
     <default>
         <payment>
             <pay>
-                <active>0</active>
+                <active>1</active>
                 <model>pay/Standard</model>
                 <order_status>processing</order_status>
                 <title>Pay in instalments with Divido</title>
