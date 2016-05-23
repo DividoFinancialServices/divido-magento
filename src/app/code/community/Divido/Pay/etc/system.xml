@@ -28,11 +28,20 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </active>
+                        <debug translate="label">
+                            <label>Debug</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </debug>
                         <title translate="label">
                             <label>Title</label>
                             <frontend_type>text</frontend_type>
-                            <tooltip>Field ToolTip</tooltip>
-                            <sort_order>3</sort_order>
+                            <tooltip>The name of the payment option at checkout</tooltip>
+                            <sort_order>4</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -41,8 +50,7 @@
                             <label>New order status</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_order_status_processing</source_model>-->
-                            <!--<source_model>adminhtml/system_config_source_order_status</source_model>-->
-                            <sort_order>4</sort_order>
+                            <sort_order>5</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -80,8 +88,7 @@
                             <source_model>Divido_Pay_Model_System_Config_Finances</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </finances_list>
+                            <show_in_store>0</show_in_store>The name of the payment option>
                         <sort_order translate="label">
                             <label>Sort Order</label>
                             <frontend_type>text</frontend_type>
