@@ -2,6 +2,11 @@ document.observe("dom:loaded", function() {
 
     var divido = {
         initialize: function () {
+            var apiKeyField = $('payment_pay_api_key');
+            if (apiKeyField == null) {
+                return false;
+            }
+
             this.toggleFields();
             this.bindEvents();
         },
