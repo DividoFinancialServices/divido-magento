@@ -43,6 +43,23 @@ $req_tpl = [
 ];
 
 $data = json_encode($req_tpl);
+
+if ($status == 'PROPOSAL') {
+    $data = '
+        {
+            "event": "proposal-new-session",
+            "name": " ",
+            "proposal": "P519F15A7-D7FE-D354-CA56-ED2505B5A7E7",
+            "reference": "",
+            "metadata": {
+                "quote_id": "' . $quote_id . '",
+                "quote_hash": "8f0558149240dc7db2466314b141ebbbf9c9acfe87a17853325c9e0bb55b5355"
+            },
+            "live": false
+        }
+    ';
+}
+
 $cmd = "curl -v -X POST -d '{$data}' -H 'Content-Type: application/json' {$url}";
 
 system($cmd);
