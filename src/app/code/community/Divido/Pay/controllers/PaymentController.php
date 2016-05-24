@@ -125,7 +125,15 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'redirect_url' => Mage::getUrl('pay/payment/return', array('quote_id' => $quote_id)),
         );
 
+        if (Mage::getStoreConfig('payment/pay/debug')) {
+            Mage::log('Request: ' . json_encode($request_data), Zend_Log::DEBUG, 'divido.log', true);
+        }
+
         $response = Divido_CreditRequest::create($request_data);
+
+        if (Mage::getStoreConfig('payment/pay/debug')) {
+            Mage::log('Response: ' . $response->__toJSON(), Zend_Log::DEBUG, 'divido.log', true);
+        }
 
         if ($response->status == 'ok') {
             $lookup = Mage::getModel('callback/lookup');
@@ -137,6 +145,10 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $existing_lookup = Mage::getModel('callback/lookup')->load($quote_id, 'quote_id');
             if ($existing_lookup->getId()) {
                 $lookup->setId($existing_lookup->getId());
+            }
+
+            if (Mage::getStoreConfig('payment/pay/debug')) {
+                Mage::log('Lookup: ' . json_encode($lookup->getData()), Zend_Log::DEBUG, 'divido.log', true);
             }
 
             $lookup->save();
@@ -156,6 +168,10 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $session = Mage::getSingleton('checkout/session');
         $quoteId = $this->getRequest()->getParam('quote_id');
         $quote   = Mage::getModel('sales/quote')->load($quoteId);
+
+        if (Mage::getStoreConfig('payment/pay/debug')) {
+            Mage::log('Return, quote ID: ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
+        }
 
         $session->setLastQuoteId($quoteId)->setLastSuccessQuoteId($quoteId);
 
