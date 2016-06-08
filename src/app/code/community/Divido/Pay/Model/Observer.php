@@ -2,6 +2,14 @@
 
 class Divido_Pay_Model_Observer
 {
+    const CACHE_KEY_PLANS      = 'divido_plans';
+
+    public function clearCache ($observer)
+    {
+        $cache = Mage::app()->getCache();
+        $cache->remove(self::CACHE_KEY_PLANS);
+    }
+
     public function updateDefaultProductPlans ($observer)
     {
         $helper = Mage::helper('pay');

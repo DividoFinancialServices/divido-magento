@@ -51,6 +51,10 @@
                         <class>Divido_Pay_Model_Observer</class>
                         <method>updateDefaultProductPlans</method>
                     </updateDefaultProductPlans>
+                    <clearDividoCache>
+                        <class>Divido_Pay_Model_Observer</class>
+                        <method>clearCache</method>
+                    </clearDividoCache>
                 </observers>
             </admin_system_config_changed_section_payment>
         </events>
