@@ -55,11 +55,21 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </order_status>
+                        <order_create_signed translate="label">
+                            <label>Create order on signing</label>
+                            <tooltip>Creates order when customer has signed contract. Default is when the application is accepted.</tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </order_create_signed>
                         <product_options translate="label">
                             <label>Product selection</label>
                             <frontend_type>select</frontend_type>
                             <source_model>Divido_Pay_Model_System_Config_Productoptions</source_model>
-                            <sort_order>6</sort_order>
+                            <sort_order>7</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -67,7 +77,7 @@
                         <product_price_treshold translate="label">
                             <label>Price treshold</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>7</sort_order>
+                            <sort_order>8</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -76,7 +86,7 @@
                             <label>Displayed plans</label>
                             <frontend_type>select</frontend_type>
                             <source_model>Divido_Pay_Model_System_Config_Financeoptions</source_model>
-                            <sort_order>8</sort_order>
+                            <sort_order>9</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -84,7 +94,7 @@
                         <finances_list translate="label">
                             <label>Plans</label>
                             <frontend_type>multiselect</frontend_type>
-                            <sort_order>9</sort_order>
+                            <sort_order>10</sort_order>
                             <source_model>Divido_Pay_Model_System_Config_Finances</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -93,7 +103,7 @@
                         <sort_order translate="label">
                             <label>Sort Order</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>10</sort_order>
+                            <sort_order>11</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
