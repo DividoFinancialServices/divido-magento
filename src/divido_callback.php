@@ -109,6 +109,10 @@ if ($order->getId() && $data->status === STATUS_DECLINED) {
     exitWithVersion();
 }
 
+if (Mage::getStoreConfig('payment/pay/order_create_signed') && $data->status != STATUS_SIGNED) {
+    exitWithVersion();
+}
+
 if (! $order->getId()) {
     if (Mage::getStoreConfig('payment/pay/debug')) {
         Mage::log("[Quote: {$quoteId}] Create order", Zend_Log::DEBUG, 'divido.log', true);
@@ -126,6 +130,7 @@ if (! $order->getId()) {
 
     $order = $quote_service->getOrder();
     $order->setData('state', 'new');
+    $order->setData('status', 'pending');
 }
 
 $lookup->setOrderId($order->getId());
