@@ -65,6 +65,15 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </order_create_signed>
+                        <cart_threshold translate="label">
+                            <label>Cart amount limit</label>
+                            <tooltip>Under this amount, Divido is not available as a payment option</tooltip>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </cart_threshold>
                         <product_options translate="label">
                             <label>Product selection</label>
                             <frontend_type>select</frontend_type>
