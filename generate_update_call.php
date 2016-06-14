@@ -64,4 +64,4 @@ $cmd = "curl -v -X POST -d '{$data}' -H 'Content-Type: application/json' {$url}"
 
 system($cmd);
 
-echo "\n\nhttp://magento20.divido.dev/divido/financing/success/?quote_id={$quote_id}";
+echo "\n\nhttp://magento19.divido.dev/pay/payment/return/?quote_id={$quote_id}";
