@@ -64,7 +64,7 @@
                 <class>Divido_Pay_Block</class>
             </pay>
             <dividowidget>
-                <class>Divido_Price_Block</class>
+                <class>Divido_Widget_Block</class>
             </dividowidget>
         </blocks>
 
