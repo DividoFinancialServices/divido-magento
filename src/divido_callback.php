@@ -2,8 +2,6 @@
 require_once("app/Mage.php");
 umask(0);
 
-Mage::app('admin');
-
 define('STORE',                1);
 
 define('NEW_STATUS',           'processing');
@@ -18,6 +16,9 @@ define('STATUS_DEPOSIT_PAID',  'DEPOSIT-PAID');
 define('STATUS_FULFILLED',     'FULFILLED');
 define('STATUS_REFERRED',      'REFERRED');
 define('STATUS_SIGNED',        'SIGNED');
+
+Mage::app('admin');
+$store = Mage::getSingleton('core/store')->load(STORE);
 
 $historyMessages = array(
     STATUS_ACCEPTED      => 'Credit request accepted',
@@ -37,22 +38,26 @@ function exitWithVersion() {
     exit("M1-{$version}");
 }
 
+$debug = Mage::getStoreConfig('payment/pay/debug');
 $noGo = array(STATUS_CANCELED, STATUS_DECLINED);
+$createStatus = STATUS_ACCEPTED;
+if (Mage::getStoreConfig('payment/pay/order_create_signed')) {
+    $createStatus = STATUS_SIGNED;
+}
 
 $payload = file_get_contents('php://input');
-if (Mage::getStoreConfig('payment/pay/debug')) {
+if ($debug) {
     Mage::log('Update: ' . $payload, Zend_Log::DEBUG, 'divido.log', true);
 }
 $data = json_decode($payload);
 $quoteId = $data->metadata->quote_id;
 
 if ($data->event == 'proposal-new-session') {
-    if (Mage::getStoreConfig('payment/pay/debug')) {
+    if ($debug) {
         Mage::log("[Quote: {$quoteId}] Proposal new session", Zend_Log::DEBUG, 'divido.log', true);
     }
     exitWithVersion();
 }
-$store = Mage::getSingleton('core/store')->load(STORE);
 
 $lookup = Mage::getModel('callback/lookup');
 $lookup->load($data->metadata->quote_id, 'quote_id');
@@ -68,18 +73,18 @@ if ($hash !== $data->metadata->quote_hash) {
     exit('Can not verify request');
 }
 
+// Update Lookup with application ID
 if (isset($data->application)) {
     $lookup->setCreditApplicationId($data->application);
     $lookup->save();
-    if (Mage::getStoreConfig('payment/pay/debug')) {
+    if ($debug) {
         Mage::log("[Quote: {$quoteId}] Lookup: " . json_encode($lookup->getData()), Zend_Log::DEBUG, 'divido.log', true);
     }
 }
 
-$order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $data->metadata->quote_id);
-
-if (! $order->getId() && in_array($data->status, $noGo)) {
-    if (Mage::getStoreConfig('payment/pay/debug')) {
+// If we're cancelled or declined, log it and quit
+if (in_array($data->status, $noGo)) {
+    if ($debug) {
         Mage::log("[Quote: {$quoteId}] Direct {$data->status}", Zend_Log::DEBUG, 'divido.log', true);
     }
 
@@ -93,28 +98,17 @@ if (! $order->getId() && in_array($data->status, $noGo)) {
     exitWithVersion();
 }
 
-if ($order->getId() && $data->status === STATUS_DECLINED) {
-    if (Mage::getStoreConfig('payment/pay/debug')) {
-        Mage::log("[Quote: {$quoteId}] DECLINED after REFERRED", Zend_Log::DEBUG, 'divido.log', true);
-    }
+// Try to get order
+$order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $data->metadata->quote_id);
 
-    $history = $order->addStatusHistoryComment("Divido: {$historyMessages[$data->status]}.", false);
-
-    $order->cancel();
-    $order->save();
-
-    $lookup->setDeclined(1);
-    $lookup->save();
-
+// If no order exists and we're not at the order creation level, exit
+if (!$order->getId() && $data->status != $createStatus) {
     exitWithVersion();
 }
 
-if (Mage::getStoreConfig('payment/pay/order_create_signed') && $data->status != STATUS_SIGNED) {
-    exitWithVersion();
-}
-
-if (! $order->getId()) {
-    if (Mage::getStoreConfig('payment/pay/debug')) {
+// If no order exists and we're AT the order creation level, create order
+if (!$order->getId() && $data->status == $createStatus) {
+    if ($debug) {
         Mage::log("[Quote: {$quoteId}] Create order", Zend_Log::DEBUG, 'divido.log', true);
     }
 
@@ -135,18 +129,12 @@ if (! $order->getId()) {
 
 $lookup->setOrderId($order->getId());
 $lookup->save();
-if (Mage::getStoreConfig('payment/pay/debug')) {
+if ($debug) {
     Mage::log("[Quote: {$quoteId}] Lookup: " . json_encode($lookup->getData()), Zend_Log::DEBUG, 'divido.log', true);
 }
 
-/*
-if ($data->status === STATUS_DEPOSIT_PAID) {
-    $order->setTotalPaid($lookup->getDepositAmount());
-}
-*/
-
 if ($data->status === STATUS_SIGNED) {
-    if (Mage::getStoreConfig('payment/pay/debug')) {
+    if ($debug) {
         Mage::log("[Quote: {$quoteId}] Signed", Zend_Log::DEBUG, 'divido.log', true);
     }
 
