@@ -1,4 +1,4 @@
-<?php if ($this->showWidget()): ?>
+<?php if ($this->isAvailable()): ?>
 <div class="divido-widget">
     <div data-divido-widget data-divido-plans="<?php echo $this->getPlans(); ?>" data-divido-amount="<?php echo $this->getPrice(); ?>"></div>
 </div>
