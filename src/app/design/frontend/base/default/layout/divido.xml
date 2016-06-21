@@ -12,8 +12,11 @@
     </default>
     <catalog_product_view translate="label">
         <reference name="content">
+            <reference name="product.info">
+                <block type="pay/widget" name="divido_widget" template="pay/widget.phtml" after="product.info"></block>
+            </reference>
             <reference name="product.info.extrahint">
-                <block type="pay/widget" name="divido.widget" template="pay/widget.phtml"></block>
+                <block type="pay/widget" name="divido_widget_auto" template="pay/widget.phtml"></block>
             </reference>
         </reference>
     </catalog_product_view>
