@@ -30,7 +30,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $shipAddr   = $quote_session->getShippingAddress();
         $shipping   = $shipAddr->getData();
-        $postcode   = $billing['postcode'];
+        $postcode   = $shipping['postcode'];
         $telephone  = $shipping['telephone'];
         $firstname  = $shipping['firstname'];
         $lastname   = $shipping['lastname'];
@@ -44,47 +44,29 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         foreach ($items_in_cart as $item) {
             $item_qty   = $item->getQty();
-            $item_value = $item->getPriceInclTax();
+            $item_value = $item->getPrice();
 
-            $product = array(
+            $products[] = array(
                 "type"     => "product",
                 "text"     => $item->getName(),
                 "quantity" => $item_qty,
                 "value"    => $item_value,
             );
-
-            array_push($products, $product);
         }
 
         $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
-
-        $total_discount = null;
-        if (isset($totals['discount']) && $_discount = $totals['discount']) {
-            $total_discount = $_discount->getValue();
-        }
-
-        $shipping_handling = null;
-        if (isset($totals['shipping']) && $_shipping = $totals['shipping']) {
-            $shipping_handling = $_shipping->getAddress()->getShippingInclTax();
-        }
-
         $grand_total = $totals['grand_total']->getValue();
 
-        if (! empty($shipping_handling)) {
-            $products[] = array(
-                'type'     => 'product',
-                'text'     => 'Shipping & Handling',
-                'quantity' => 1,
-                'value'    => $shipping_handling,
-            );
-        }
+        foreach ($totals as $total) {
+            if (in_array($total->getCode(), array('subtotal', 'grand_total'))) {
+                continue;
+            }
 
-        if (! empty($total_discount)) {
             $products[] = array(
-                'type'     => 'product',
-                'text'     => 'Discounts',
+                'type' => 'product',
+                'text' => $total->getTitle(),
                 'quantity' => 1,
-                'value'    => $total_discount,
+                'value' => $total->getValue(),
             );
         }
 
