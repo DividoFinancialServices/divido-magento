@@ -139,11 +139,11 @@ if ($data->status === STATUS_SIGNED) {
     }
 
     $newStatus = NEW_STATUS;
-    if ($statusOverride = $apiKey = Mage::getStoreConfig('payment/pay/order_status')) {
+    if ($statusOverride = Mage::getStoreConfig('payment/pay/order_status')) {
         $newStatus = $statusOverride;
     }
     $order->setData('status', $newStatus);
-    $order->queueNewOrderEmail();
+    $order->sendNewOrderEmail();
 }
 
 if (isset($historyMessages[$data->status])) {
