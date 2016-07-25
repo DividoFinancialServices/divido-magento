@@ -7,7 +7,7 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
     const CACHE_KEY_PLANS      = 'divido_plans';
     const CACHE_LIFETIME_PLANS = 3600;
 
-    public function getAllPlans ()
+    public function getApiKey ()
     {
         $apiKey = Mage::getStoreConfig('payment/pay/api_key');
         if (empty($apiKey)) {
@@ -15,6 +15,13 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
             return array();
         }        
         $apiKey = Mage::helper('core')->decrypt($apiKey);
+
+        return $apiKey;
+    }
+
+    public function getAllPlans ()
+    {
+        $apiKey = $this->getApiKey();
 
         $cache = Mage::app()->getCache();
         if ($plans = $cache->load(self::CACHE_KEY_PLANS)) {
@@ -36,6 +43,19 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         $cache->save(serialize($plans), self::CACHE_KEY_PLANS, array('divido_cache'), self::CACHE_LIFETIME_PLANS);
 
         return $plans;
+    }
+
+    public function setFulfilled ($applicationId, $shippingMethod = null, $trackingNumbers = null)
+    {
+        $apiKey = $this->getApiKey();
+        $params = array(
+            'application'    => $applicationId,
+            'deliveryMethod' => $shippingMethod,
+            'trackingNumber' => $trackingNumbers
+        );
+
+        Divido::setMerchant($apiKey);
+        Divido_Fulfillment::fulfill($params);
     }
 
     public function getScriptUrl ()

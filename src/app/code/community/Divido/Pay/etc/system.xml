@@ -58,7 +58,7 @@
                         <order_status translate="label">
                             <label>New order status</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_order_status_processing</source_model>-->
+                            <source_model>adminhtml/system_config_source_order_status_processing</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -74,6 +74,25 @@
                             <show_in_store>0</show_in_store>
                             <sort_order>7</sort_order>
                         </order_create_signed>
+                        <fulfilment_update translate="label">
+                            <label>Automatical fulfilment update</label>
+                            <tooltip>When orders reaches a certain status, automatically set them as fulfilled in the Divido merchant portal.</tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <sort_order>8</sort_order>
+                        </fulfilment_update>
+                        <fulfilment_order_status translate="label">
+                            <label>Fulfilment status</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <sort_order>9</sort_order>
+                        </fulfilment_order_status>
                         <cart_threshold translate="label">
                             <label>Cart amount limit</label>
                             <tooltip>Under this amount, Divido is not available as a payment option</tooltip>
@@ -81,7 +100,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>8</sort_order>
+                            <sort_order>10</sort_order>
                         </cart_threshold>
                         <product_options translate="label">
                             <label>Product selection</label>
@@ -90,7 +109,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>9</sort_order>
+                            <sort_order>11</sort_order>
                         </product_options>
                         <product_price_treshold translate="label">
                             <label>Price treshold</label>
@@ -98,7 +117,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>10</sort_order>
+                            <sort_order>12</sort_order>
                         </product_price_treshold>
                         <finances_displayed translate="label">
                             <label>Displayed plans</label>
@@ -107,7 +126,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>11</sort_order>
+                            <sort_order>13</sort_order>
                         </finances_displayed>
                         <finances_list translate="label">
                             <label>Plans</label>
@@ -116,7 +135,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>The name of the payment option>
-                            <sort_order>12</sort_order>
+                            <sort_order>14</sort_order>
                         </finances_list>
                         <sort_order translate="label">
                             <label>Sort Order</label>
@@ -124,7 +143,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>13</sort_order>
+                            <sort_order>15</sort_order>
                         </sort_order>
                     </fields>
                 </pay>

@@ -3,6 +3,7 @@
 class Divido_Pay_Model_Observer
 {
     const CACHE_KEY_PLANS      = 'divido_plans';
+    const FULFILMENT_STATUS    = 'complete';
 
     public function clearCache ($observer)
     {
@@ -26,7 +27,7 @@ class Divido_Pay_Model_Observer
         $plan_list = implode(',', $plan_ids);
 
         $data = array(
-                'default_value' =>  $plan_list,
+            'default_value' =>  $plan_list,
         );
 
         $attributeModel = Mage::getModel('eav/entity_attribute');
@@ -43,5 +44,48 @@ class Divido_Pay_Model_Observer
         }
 
 
+    }
+
+    public function submitFulfilment ($observer)
+    {
+        $helper = Mage::helper('pay');
+
+        $order = $observer->getOrder();
+        $currentStatus = $order->getData('status');
+        $previousStatus = $order->getOrigData('status');
+
+        $lookup = Mage::getModel('callback/lookup');
+        $lookup->load($order->quote_id, 'quote_id');
+
+        // If it's not a Divido order
+        if (! $lookup->getId()) {
+            return false;
+        }
+
+        // If fulfilment is not enabled
+        if (! Mage::getStoreConfig('payment/pay/fulfilment_update')) {
+            return false;
+        }
+
+        $fulfilmentStatus = self::FULFILMENT_STATUS;
+        if ($fulfilmentStatusOverride = Mage::getStoreConfig('payment/pay/fulfilment_order_status')) {
+            $fulfilmentStatus = $fulfilmentStatusOverride;
+        }
+
+        if ($currentStatus == $fulfilmentStatus && $currentStatus != $previousStatus) {
+            $shippingMethod = $order->getShippingDescription();
+
+            $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection')
+                ->setOrderFilter($order)->load();
+            $trackingNumbers = array();
+            foreach ($shipmentCollection as $shipment){
+                foreach($shipment->getAllTracks() as $tracknum) {
+                    $trackingNumbers[] = $tracknum->getNumber();
+                }
+            }
+            $trackingNumbers = implode(',', $trackingNumbers);
+            $applicationId = $lookup->getData('credit_application_id');
+            $helper->setFulfilled($applicationId, $shippingMethod, $trackingNumbers);
+        }
     }
 }
