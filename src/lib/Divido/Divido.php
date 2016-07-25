@@ -41,3 +41,6 @@ require_once(dirname(__FILE__) . '/Divido/List.php');
 require_once(dirname(__FILE__) . '/Divido/CreditRequest.php');
 require_once(dirname(__FILE__) . '/Divido/DealCalculator.php');
 require_once(dirname(__FILE__) . '/Divido/Finances.php');
+require_once(dirname(__FILE__) . '/Divido/Comments.php');
+require_once(dirname(__FILE__) . '/Divido/Fulfillment.php');
+require_once(dirname(__FILE__) . '/Divido/Cancellation.php');
