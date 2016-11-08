@@ -1,11 +1,9 @@
 <?php 
-echo "arriba";
-
 try {
     $dbh = new PDO('mysql:host=magento-db;dbname=magento17', 'root', 'root');
+    echo "DB connection ok";
 } catch (PDOException $e) {
-        print "Error!: " . $e->getMessage() . "<br/>";
+    print "Error!: " . $e->getMessage() . "<br/>";
 }
 
-var_dump($dbh);
 phpinfo();
