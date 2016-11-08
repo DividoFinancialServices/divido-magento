@@ -2,3 +2,5 @@ watch.sh
 .DS_Store
 release
 htdocs/magento/magento17/*
+htdocs/magento/magento18/*
+htdocs/magento/magento19/*
