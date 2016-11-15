@@ -33,9 +33,20 @@ $historyMessages = array(
     STATUS_SIGNED        => 'Customer have signed all contracts',
 );
 
-function exitWithVersion() {
-    $version = Mage::getConfig()->getModuleConfig("Divido_Pay")->version;
-    exit("M1-{$version}");
+function exitWithVersion($ok = true, $message = '') {
+
+    $pluginVersion = (string) Mage::getConfig()->getModuleConfig("Divido_Pay")->version;
+    $status = $ok ? 'ok' : 'error';
+
+    $response = array(
+        'status'           => $status,
+        'message'          => $message,
+        'platform'         => 'Magento',
+        'plugin_version'   => $pluginVersion,
+    );
+
+    echo json_encode($response);
+    exit;
 }
 
 $debug = Mage::getStoreConfig('payment/pay/debug');
@@ -63,14 +74,14 @@ $lookup = Mage::getModel('callback/lookup');
 $lookup->load($data->metadata->quote_id, 'quote_id');
 if (! $lookup->getId()) {
     Mage::log('Bad request, could not find lookup. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
-    exit('Can not verify request');
+    exitWithVersion(false, 'no lookup');
 }
 
 $salt = $lookup->getSalt();
 $hash = Mage::helper('pay')->hashQuote($salt, $data->metadata->quote_id);
 if ($hash !== $data->metadata->quote_hash) {
     Mage::log('Bad request, mismatch in hash. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
-    exit('Can not verify request');
+    exitWithVersion(false, 'invalid hash');
 }
 
 // Update Lookup with application ID
