@@ -2,9 +2,9 @@
 
 function upd {
     date
-    cp -R src/* htdocs/magento/magento17/
-    cp -R src/* htdocs/magento/magento18/
-    cp -R src/* htdocs/magento/magento19/
+    rsync -a src htdocs/magento/magento17
+    rsync -a src htdocs/magento/magento18
+    rsync -av src/ htdocs/magento/magento19
     echo "done"
 }
 

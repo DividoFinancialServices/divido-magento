@@ -1,9 +1,10 @@
 <?php
 
-$quote_id = $argv[1];
-$status = $argv[2];
+$version = $argv[1];
+$quote_id = $argv[2];
+$status = $argv[3];
 
-$db = new mysqli('magento19.divido.dev', 'root', '', 'magento_19');
+$db = new mysqli("127.0.0.1:33061", 'root', 'root', "magento{$version}");
 if ($db->connect_errno) {
     die($db->connect_error);
 }
@@ -16,7 +17,7 @@ $s->fetch();
 $s->close();
 $db->close();
 
-$url = 'http://magento19.divido.dev/divido_callback.php';
+$url = "http://magento{$version}.divido.dev/divido_callback.php";
 $statuses = [
    0 => 'ACCEPTED',
    1 => 'DEPOSIT-PAID',
@@ -64,4 +65,4 @@ $cmd = "curl -v -X POST -d '{$data}' -H 'Content-Type: application/json' {$url}"
 
 system($cmd);
 
-echo "\n\nhttp://magento19.divido.dev/pay/payment/return/?quote_id={$quote_id}";
+echo "\n\nhttp://magento{$version}.divido.dev/pay/payment/return/?quote_id={$quote_id}";
