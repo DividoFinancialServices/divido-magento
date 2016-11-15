@@ -17,7 +17,7 @@ $s->fetch();
 $s->close();
 $db->close();
 
-$url = "http://magento{$version}.divido.dev/divido_callback.php";
+$url = "http://magento{$version}.divido.dev/pay/payment/webhook";
 $statuses = [
    0 => 'ACCEPTED',
    1 => 'DEPOSIT-PAID',
