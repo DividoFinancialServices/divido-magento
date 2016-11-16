@@ -111,7 +111,8 @@ class Divido_Pay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
     public function isAvailable ($quote = null)
     {
-        $hasPlans      = Mage::helper('pay')->getQuotePlans($quote);
+        $shippingEqBilling = $quote->getShippingAddress()->getSameAsBilling();
+        $hasPlans          = Mage::helper('pay')->getQuotePlans($quote);
 
         $cartThreshold = (float) Mage::getStoreConfig('payment/pay/cart_threshold');
         $cartTotal     = (float) $quote->getGrandTotal();
@@ -120,7 +121,7 @@ class Divido_Pay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         $billingAddr   = $quote->getBillingAddress()->getData();
         $rightCountry  = $billingAddr['country_id'] == 'GB';
 
-        return $hasPlans && $aboveLimit && $rightCountry;
+        return $shippingEqBilling && $hasPlans && $aboveLimit && $rightCountry;
     }
 }
 ?>
