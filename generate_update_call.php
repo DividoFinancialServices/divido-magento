@@ -61,7 +61,20 @@ if ($status == 'PROPOSAL') {
     ';
 }
 
-$cmd = "curl -v -X POST -d '{$data}' -H 'Content-Type: application/json' {$url}";
+$headers = [];
+
+$secret = 'secretsecret';
+$hmac   = hash_hmac('sha256', $data, $secret);
+$signature = base64_encode($hmac);
+$headers = 'X-DIVIDO-HMAC-SHA256: ' . $signature;
+
+$headerString = '';
+foreach ($headers as $header) {
+    $headerString .= " -H  '{$header}'";
+}
+
+
+$cmd = "curl -v -X POST -d '{$data}' -H 'Content-Type: application/json' {$headerString} {$url}";
 
 system($cmd);
 

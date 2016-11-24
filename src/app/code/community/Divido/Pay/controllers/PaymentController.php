@@ -214,6 +214,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $data = json_decode($payload);
         $quoteId = $data->metadata->quote_id;
 
+        xdebug_break();
+
         if ($data->event == 'proposal-new-session') {
             if ($debug) {
                 Mage::log("[Quote: {$quoteId}] Proposal new session", Zend_Log::DEBUG, 'divido.log', true);
