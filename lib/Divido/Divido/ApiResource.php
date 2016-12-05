@@ -110,6 +110,15 @@ abstract class Divido_ApiResource extends Divido_Object
     return Divido_Util::convertToDividoObject($response, $apiKey);
   }
 
+  protected static function _scopedSendApplicationRequest($class, $params=null, $apiKey=null)
+  {
+    self::_validateCall('sendApplicationRequest', $params, $apiKey);
+    $requestor = new Divido_ApiRequestor($apiKey);
+    $url = self::_scopedLsb($class, 'classUrl', $class);
+    list($response, $apiKey) = $requestor->request('post', $url, $params);
+    return Divido_Util::convertToDividoObject($response, $apiKey);
+  }
+
   protected static function _scopedCreditRequest($class, $params=null, $apiKey=null)
   {
     self::_validateCall('creditRequest', $params, $apiKey);
@@ -128,9 +137,27 @@ abstract class Divido_ApiResource extends Divido_Object
     return Divido_Util::convertToDividoObject($response, $apiKey);
   }
 
+  protected static function _scopedActivateRequest($class, $params=null, $apiKey=null)
+  {
+    self::_validateCall('activateRequest', $params, $apiKey);
+    $requestor = new Divido_ApiRequestor($apiKey);
+    $url = self::_scopedLsb($class, 'classUrl', $class);
+    list($response, $apiKey) = $requestor->request('post', $url, $params);
+    return Divido_Util::convertToDividoObject($response, $apiKey);
+  }
+
   protected static function _scopedCancellationRequest($class, $params=null, $apiKey=null)
   {
     self::_validateCall('cancelRequest', $params, $apiKey);
+    $requestor = new Divido_ApiRequestor($apiKey);
+    $url = self::_scopedLsb($class, 'classUrl', $class);
+    list($response, $apiKey) = $requestor->request('post', $url, $params);
+    return Divido_Util::convertToDividoObject($response, $apiKey);
+  }
+
+  protected static function _scopedRefundRequest($class, $params=null, $apiKey=null)
+  {
+    self::_validateCall('refundRequest', $params, $apiKey);
     $requestor = new Divido_ApiRequestor($apiKey);
     $url = self::_scopedLsb($class, 'classUrl', $class);
     list($response, $apiKey) = $requestor->request('post', $url, $params);

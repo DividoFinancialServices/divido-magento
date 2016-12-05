@@ -11,6 +11,11 @@ abstract class Divido
    * @var string The Divido API key to be used for requests.
    */
   public static $apiKey;
+
+  /**
+   * @var string The Divido shared secdret to be used for requests.
+   */
+  public static $sharedSecret;
   
   /**
    * @var string The Divido API key to be used for requests.
@@ -69,7 +74,24 @@ abstract class Divido
   {
     self::setApiKey($merchant);
   }
-  
+
+  /**
+   * @return string The shared secret used for requests.
+   */
+  public static function getSharedSecret()
+  {
+    return self::$sharedSecret;
+  }
+
+  /**
+   * Sets the shared secret to be used for requests.
+   *
+   * @param string $sharedSecret
+   */
+  public static function setSharedSecret($sharedSecret)
+  {
+    self::$sharedSecret = $sharedSecret;
+  }
   
   /**
    * @return string The sandbox mode used for requests.

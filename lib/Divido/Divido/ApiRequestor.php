@@ -17,9 +17,10 @@ class Divido_ApiRequestor
     );
   }
 
-  public function __construct($apiKey=null)
+  public function __construct($apiKey=null,$sharedSecret=null)
   {
     $this->_apiKey = $apiKey;
+    $this->_sharedSecret = $sharedSecret;
   }
 
   /**
@@ -110,8 +111,9 @@ class Divido_ApiRequestor
   {
     if (!$params)
       $params = array();
-    list($rbody, $rcode, $myApiKey) =
-      $this->_requestRaw($method, $url, $params);
+    
+    list($rbody, $rcode, $myApiKey) = $this->_requestRaw($method, $url, $params);
+
     $resp = $this->_interpretResponse($rbody, $rcode);
     return array($resp, $myApiKey);
   }
@@ -168,6 +170,10 @@ class Divido_ApiRequestor
     if (!$myApiKey)
       $myApiKey = Divido::$apiKey;
 
+    $sharedSecret = $this->_sharedSecret;
+    if (!$sharedSecret)
+      $sharedSecret = Divido::$sharedSecret;
+
     if (!$myApiKey) {
       $msg = 'No API key provided.  (HINT: set your API key using '
            . '"Divido::setApiKey(<API-KEY>)".  You can generate API keys from '
@@ -187,12 +193,21 @@ class Divido_ApiRequestor
         'publisher' => 'divido',
         'uname' => $uname,
     );
+
     $headers = array(
         'X-Divido-Client-User-Agent: ' . json_encode($ua),
         'User-Agent: Divido/v1 PhpBindings/' . Divido::VERSION,
         'Authorization: Bearer ' . $myApiKey,
         'Content-Type: application/x-www-form-urlencoded',
     );
+
+    if (!empty($sharedSecret)) {
+      $string = $url."?".http_build_query($params);
+      $hmac = base64_encode(hash_hmac('sha256', $string, $sharedSecret, true));
+
+      $headers[] = 'X-DIVIDO-HMAC-SHA256: ' . $hmac;
+    }
+
     if (Divido::$apiVersion) {
       $headers[] = 'Divido-Version: ' . Divido::$apiVersion;
     }
@@ -228,13 +243,15 @@ class Divido_ApiRequestor
       self::$_preFlight = $this->checkSslCert($this->apiUrl());
     }
 	
+  /*
 	$myApiKey = $this->_apiKey;
     if (!$myApiKey)
       $myApiKey = Divido::$apiKey;
       
 	if (!isset($params['merchant'])) {
-		$params['merchant'] = $myApiKey;
+	 $params['merchant'] = $myApiKey;
 	}
+  */
 
     $curl = curl_init();
     $method = strtolower($method);
@@ -261,7 +278,15 @@ class Divido_ApiRequestor
     }
     
     $absUrl = self::utf8($absUrl);
+    // print "absUrl: ".$absUrl."<br />";
     $opts[CURLOPT_URL] = $absUrl;
+
+    /*
+    if (isset($myApiKey)) {
+      // $opts[CURLOPT_USERPWD] = $params['merchant'].":";
+      curl_setopt($curl,CURLOPT_USERPWD,$myApiKey.":");
+    }
+    */
     $opts[CURLOPT_RETURNTRANSFER] = true;
     $opts[CURLOPT_CONNECTTIMEOUT] = 30;
     $opts[CURLOPT_TIMEOUT] = 80;

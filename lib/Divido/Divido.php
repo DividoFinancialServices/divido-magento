@@ -1,8 +1,4 @@
 <?php
-
-// Tested on PHP 5.2, 5.3
-
-// This snippet (and some of the curl code) due to the Facebook SDK.
 if (!function_exists('curl_init')) {
   throw new Exception('Divido needs the CURL PHP extension.');
 }
@@ -38,9 +34,12 @@ require_once(dirname(__FILE__) . '/Divido/AttachedObject.php');
 require_once(dirname(__FILE__) . '/Divido/List.php');
 
 // Divido API Resources
+require_once(dirname(__FILE__) . '/Divido/SendApplication.php');
 require_once(dirname(__FILE__) . '/Divido/CreditRequest.php');
 require_once(dirname(__FILE__) . '/Divido/DealCalculator.php');
 require_once(dirname(__FILE__) . '/Divido/Finances.php');
 require_once(dirname(__FILE__) . '/Divido/Comments.php');
+require_once(dirname(__FILE__) . '/Divido/Activation.php');
+require_once(dirname(__FILE__) . '/Divido/Refund.php');
 require_once(dirname(__FILE__) . '/Divido/Fulfillment.php');
 require_once(dirname(__FILE__) . '/Divido/Cancellation.php');
