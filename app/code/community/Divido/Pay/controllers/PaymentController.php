@@ -39,14 +39,15 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
      */
     public function startAction()
     {
-        $resource       = Mage::getSingleton('core/resource');
-        $readConnection = $resource->getConnection('core_read');
-        $table          = $resource->getTableName('core_config_data');
-        $query          = "select value from $table where path = 'payment/pay/api_key'";
-        $api_encode     = $readConnection->fetchOne($query);
-        $apiKey         = Mage::helper('core')->decrypt($api_encode);
+        $apiKeyEnc      = Mage::getStoreConfig('payment/pay/api_key');
+        $apiKey         = Mage::helper('core')->decrypt($apiKeyEnc);
+        $secretEnc      = Mage::getStoreConfig('payment/pay/secret');
+        $secret         = Mage::helper('core')->decrypt($secretEnc);
 
         Divido::setMerchant($apiKey);
+        if (! empty($sharedSecret)) {
+            Divido::setSharedSecret($sharedSecret);
+        }
 
         $quote_cart         = Mage::getModel('checkout/cart')->getQuote();
 
@@ -204,17 +205,24 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $createStatus = self::STATUS_ACCEPTED;
         if (Mage::getStoreConfig('payment/pay/order_create_signed')) {
-            $createStatus = STATUS_SIGNED;
+            $createStatus = self::STATUS_SIGNED;
         }
 
         $payload = file_get_contents('php://input');
         if ($debug) {
             Mage::log('Update: ' . $payload, Zend_Log::DEBUG, 'divido.log', true);
         }
+
+        $reqSign = $this->getRequest()->getHeader('X-DIVIDO-HMAC-SHA256');
+        $signature = Mage::helper('pay')->createSignature($payload);
+        if ($reqSign !== $signature) {
+            Mage::log('Bad request, invalid signature. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
+            return $this->respond(false, 'invalid signature', false);
+        }
+
         $data = json_decode($payload);
         $quoteId = $data->metadata->quote_id;
 
-        xdebug_break();
 
         if ($data->event == 'proposal-new-session') {
             if ($debug) {
@@ -278,7 +286,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             }
 
             $quote = Mage::getModel('sales/quote')
-                ->setStore($store)
                 ->load($data->metadata->quote_id);
 
             // Convert quote to order

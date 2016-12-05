@@ -124,4 +124,3 @@ class Divido_Pay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         return $shippingEqBilling && $hasPlans && $aboveLimit && $rightCountry;
     }
 }
-?>
