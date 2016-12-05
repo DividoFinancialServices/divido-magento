@@ -213,16 +213,18 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             Mage::log('Update: ' . $payload, Zend_Log::DEBUG, 'divido.log', true);
         }
 
-        $reqSign = $this->getRequest()->getHeader('X-DIVIDO-HMAC-SHA256');
-        $signature = Mage::helper('pay')->createSignature($payload);
-        if ($reqSign !== $signature) {
-            Mage::log('Bad request, invalid signature. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
-            return $this->respond(false, 'invalid signature', false);
+        $secretEnc = Mage::getStoreConfig('payment/pay/secret');
+        if (!empty($secretEnc)) {
+            $reqSign = $this->getRequest()->getHeader('X-DIVIDO-HMAC-SHA256');
+            $signature = Mage::helper('pay')->createSignature($payload);
+            if ($reqSign !== $signature) {
+                Mage::log('Bad request, invalid signature. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
+                return $this->respond(false, 'invalid signature', false);
+            }
         }
 
         $data = json_decode($payload);
         $quoteId = $data->metadata->quote_id;
-
 
         if ($data->event == 'proposal-new-session') {
             if ($debug) {
