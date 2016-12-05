@@ -201,13 +201,14 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     public function createSignature ($payload) {
-        $secret = Mage::getStoreConfig('payment/pay/secret');
+        $secretEnc = Mage::getStoreConfig('payment/pay/secret');
+        $secret    = Mage::helper('core')->decrypt($secretEnc);
 
         if (! $secret) {
             throw new Exception("No secret defined");
         }
     
-        $hmac = hash_hmac('sha256', $payload, $secret);
+        $hmac = hash_hmac('sha256', $payload, $secret, true);
         $signature = base64_encode($hmac);
 
         return $signature;
