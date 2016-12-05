@@ -1,0 +1,60 @@
+<?php 
+$_code      = $this->getMethodCode();
+$quote      = Mage::getSingleton('checkout/cart')->getQuote();
+$plans      = Mage::helper('pay')->getQuotePlans($quote);
+$planList   = Mage::helper('pay')->plans2list($plans);
+$grandTotal = $quote->getGrandTotal();
+?>
+<div id="payment_form_<?php echo $_code ?>" style="display:none;">
+    <fieldset id="divido-checkout" data-divido-calculator class="divido-calculator divido-theme-blue" data-divido-amount="<?php echo $grandTotal; ?>" data-divido-plans="<?php echo $planList; ?>" data-divido-filter-plans="1">
+        <div class="divido-headline">
+            <a href="https://www.divido.com" target="_blank" class="divido-logo divido-logo-sm" style="float:right;">Divido</a>
+            Pay in instalments
+        </div>
+        <div class="divido-controls">
+            <div class="divido-controls-plan">
+                <span data-divido-choose-finance data-divido-label="Choose your plan" data-divido-form="divido_finance"></span>
+            </div>
+            <div class="divido-controls-deposit">
+                <span class="divido-deposit" data-divido-choose-deposit data-divido-label="Choose your deposit" data-divido-form="divido_deposit"></span>
+            </div>
+        </div>
+        <div class="divido-description">
+            <strong>
+                <span data-divido-agreement-duration></span> monthly payments of <span data-divido-monthly-instalment></span>
+            </strong>
+        </div>
+        <div class="divido-info">
+            <div class="divido-info-terms">
+                <div class="divido-info-term">Term</div>
+                <div class="divido-info-value"><span data-divido-agreement-duration></span> months</div>
+                <div class="divido-info-term">Monthly instalment</div>
+                <div class="divido-info-value"><span data-divido-monthly-instalment></span></div>
+                <div class="divido-info-term">Deposit</div>
+                <div class="divido-info-value"><span data-divido-deposit></span></div>
+                <div class="divido-info-term">Cost of credit</div>
+
+                <div class="divido-info-value"><span data-divido-finance-cost-rounded></span></div>
+                <div class="divido-info-term">Total payable</div>
+                <div class="divido-info-value"><span data-divido-total-payable-rounded></span></div>
+                <div class="divido-info-term">Total interest APR</div>
+                <div class="divido-info-value"><span data-divido-interest-rate></span></div>
+            </div>
+            <div class="divido-info-prereq">
+                <ul>
+                    <li>Are employed, or retired, and have a regular monthly income</li>
+                    <li>Are a UK resident, over 18 and able to supply 3 years of address history</li>
+                    <li>Have a good credit history (no CCJ's)</li>
+                    <li>Have a debit or credit card</li>
+                </ul>
+            </div>
+        </div>
+        <p>You will be redirected to Divido to complete this finance application when you place your order</p>
+    </fieldset>
+</div>
+<script>
+var calculators = document.querySelectorAll('[data-divido-calculator]');
+Array.prototype.forEach.call(calculators, function(calculator, i) {
+	var calc = new Divido(calculator);
+});
+</script>

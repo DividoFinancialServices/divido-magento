@@ -1,0 +1,26 @@
+<?php $info = $this->getDividoInfo(); ?>
+<div class="box-left">
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-account">Divido Info</h4>
+        </div>
+        <div class="fieldset">
+            <table class="form-list" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td class="label">Proposal ID</td>
+                        <td class="value"><?php echo $info['proposal_id']; ?></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Application ID</td>
+                        <td class="value"><?php echo $info['application_id']; ?></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Deposit amount</td>
+                        <td class="value"><?php echo $info['deposit_amount']; ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

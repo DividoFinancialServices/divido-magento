@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Divido_Pay>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Divido_Pay>
+        <depends>
+            <Mage_Payment />
+        </depends>
+    </modules>
+</config>
