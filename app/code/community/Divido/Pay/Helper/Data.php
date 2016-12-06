@@ -78,7 +78,7 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         return (bool) $globalActive;
     }
 
-    public function isActiveLocal ($product)
+    public function isActiveLocal ($product, $price = null)
     {
         $globalActive = $this->isActiveGlobal();
 
@@ -89,9 +89,13 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         $productOptions        = Mage::getStoreConfig('payment/pay/product_options');
         $productPriceThreshold = Mage::getStoreConfig('payment/pay/product_price_treshold');
 
+        if (! $price) {
+            $price = $product['price'];
+        }
+
         switch ($productOptions) {
         case 'products_price_treshold':
-            if ($product['price'] < $productPriceThreshold) {
+            if ($price < $productPriceThreshold) {
                 return false;
             }
             break;

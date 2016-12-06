@@ -18,7 +18,11 @@ class Divido_Pay_Block_Widget extends Mage_Core_Block_Template
             return false;
         }
 
-        if (!$this->isActive() || !$this->getPrice() || !$this->getPlans()) {
+        $price  = $this->getPrice(true);
+        $active = $this->isActive($price);
+        $plans  = $this->getPlans();
+
+        if (! $active || ! $price  || ! $plans) {
             return false;
         }
 
@@ -35,11 +39,11 @@ class Divido_Pay_Block_Widget extends Mage_Core_Block_Template
         return $this->product;
     }
 
-    public function isActive ()
+    public function isActive ($price = null)
     {
         if ($this->active === null) {
             $product = $this->getProduct();
-            $active  = Mage::helper('pay')->isActiveLocal($product);
+            $active  = Mage::helper('pay')->isActiveLocal($product, $price);
 
             $this->active = $active;
         }
@@ -47,7 +51,7 @@ class Divido_Pay_Block_Widget extends Mage_Core_Block_Template
         return $this->active;
     }
 
-    public function getPrice ()
+    public function getPrice ($max = false)
     {
         if ($this->price === null) {
             $product = $this->getProduct();
@@ -73,7 +77,12 @@ class Divido_Pay_Block_Widget extends Mage_Core_Block_Template
                         }
                     }
                 }
-                $incTax = min($childPrices);
+
+                if ($max) {
+                    $incTax = max($childPrices);
+                } else {
+                    $incTax = min($childPrices);
+                }
             }
 
             $this->price = $incTax;
