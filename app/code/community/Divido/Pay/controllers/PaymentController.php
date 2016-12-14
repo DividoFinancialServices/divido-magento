@@ -76,6 +76,10 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $products       = array();
 
         foreach ($items_in_cart as $item) {
+            if ($item->getRealProductType() == 'bundle') {
+                continue;
+            }
+
             $item_qty   = $item->getQty();
             $item_value = $item->getPrice();
 
