@@ -56,6 +56,31 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $quote_session      = $checkout_session->getQuote();
         $quote_session_data = $quote_session->getData();
 
+        $existing_lookup = Mage::getModel('callback/lookup')->load($quote_id, 'quote_id');
+        $existingCRId = $existing_lookup->getData('credit_application_id');
+        if ($existing_lookup->getId() 
+            && $existingCRId
+            && !$existing_lookup->getCanceled() 
+            && !$existing_lookup->getDeclined()
+        ) {
+
+            $dividoApi = new Divido_ApiRequestor();
+
+            try {
+                $result = $dividoApi->request('GET', '/v1/applications', 'id=' . $existingCRId);
+                $result = $result[0];
+                if ($result['status'] == 'ok' && !empty($result['record'])) {
+                    $record = $result['record'];
+                    if (!empty($record['url']) && !in_array($record['status'], array('CANCELED', 'DECLINED'))) {
+                        $this->getResponse()->setRedirect($record['url']);
+                        return;
+                    }
+                }
+            } catch (Exception $e) {
+                Mage::log($e->getMessage() , Zend_Log::ERROR, 'divido.log', true);
+            }
+        }
+
         $deposit_percentage  = $this->getRequest()->getParam('divido_deposit') / 100;
         $finance  = $this->getRequest()->getParam('divido_finance');
         $language = strtoupper(substr(Mage::getStoreConfig('general/locale/code', Mage::app()->getStore()->getId()),0,2));
@@ -161,7 +186,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $lookup->setCreditRequestId($response->id);
             $lookup->setDepositAmount($deposit);
 
-            $existing_lookup = Mage::getModel('callback/lookup')->load($quote_id, 'quote_id');
             if ($existing_lookup->getId()) {
                 $lookup->setId($existing_lookup->getId());
             }
