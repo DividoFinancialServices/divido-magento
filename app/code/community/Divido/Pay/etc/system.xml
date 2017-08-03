@@ -3,7 +3,7 @@
     <sections>
         <payment>
             <groups>
-                <pay translate="label" module="pay">
+                <pay translate="label" module="divido_pay">
                     <label>Divido Payment</label>
                     <sort_order>670</sort_order>
                     <show_in_default>1</show_in_default>
