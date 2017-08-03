@@ -69,7 +69,7 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         $jsKey = strtolower(array_shift(explode('.', $apiKey)));
 
         //return '<script src="//calc.divido.dev/calculator.php"></script>';
-        return "<script src=\"//cdn.divido.com/calculator/{$jsKey}.js\"></script>";
+        return "<script src=\"https://cdn.divido.com/calculator/{$jsKey}.js\"></script>";
     }
 
     public function isActiveGlobal ()

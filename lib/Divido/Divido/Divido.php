@@ -136,7 +136,7 @@ abstract class Divido
       self::$apiBase = self::$testingApiBase;
     } else if (substr($apiKey,0,7) == 'staging') {
       self::$apiBase = self::$sandboxApiBase;
-    } else if (substr($apiKey,0,3) == 'dev') {
+    } else if (in_array(substr($apiKey, 0, 3), ['doc', 'dev'])) {
       self::$apiBase = self::$devApiBase;
     } else if (substr($apiKey,0,7) == 'sandbox') {
       self::$apiBase = self::$sandboxApiBase;

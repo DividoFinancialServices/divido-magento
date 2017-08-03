@@ -32,7 +32,7 @@
 	font-size: 20px;
 	line-height: 1;
 	text-indent: -9999px;
-	background-image:url('//cdn.divido.com/images/logo-black-140x42.png');
+	background-image:url('https://cdn.divido.com/images/logo-black-140x42.png');
 	background-repeat: no-repeat;
 	background-size: cover;
 }
@@ -40,7 +40,7 @@
 .divido-calculator .divido-logo-sm {
 	width: 75px;
 	height: 23px;
-	background-image:url('//cdn.divido.com/images/logo-black-75x23.png');
+	background-image:url('https://cdn.divido.com/images/logo-black-75x23.png');
 }
 
 .divido-calculator .divido-controls {
@@ -119,7 +119,7 @@
 }
 
 .divido-calculator .divido-info .divido-info-prereq ul {
-    list-style-image: url('//cdn.divido.com/images/conditions-check-green-20x15.png');
+    list-style-image: url('https://cdn.divido.com/images/conditions-check-green-20x15.png');
     list-style-position: inside;
 }
 
@@ -134,11 +134,11 @@
 }
 
 .divido-theme-blue a.divido-logo {
-	background-image:url('//cdn.divido.com/images/logo-white-140x42.png');
+	background-image:url('https://cdn.divido.com/images/logo-white-140x42.png');
 }
 
 .divido-theme-blue a.divido-logo-sm {
-	background-image:url('//cdn.divido.com/images/logo-white-75x23.png');
+	background-image:url('https://cdn.divido.com/images/logo-white-75x23.png');
 }
 
 .divido-theme-blue .divido-info, .divido-theme-blue .divido-info * {
@@ -167,10 +167,10 @@
 }
 
 .divido-theme-light a.divido-logo {
-	background-image:url('//cdn.divido.com/images/logo-blue-140x42.png');
+	background-image:url('https://cdn.divido.com/images/logo-blue-140x42.png');
 }
 .divido-theme-light a.divido-logo-sm {
-	background-image:url('//cdn.divido.com/images/logo-blue-75x23.png');
+	background-image:url('https://cdn.divido.com/images/logo-blue-75x23.png');
 }
 
 .divido-theme-light input[type=range]:focus::-webkit-slider-runnable-track {
