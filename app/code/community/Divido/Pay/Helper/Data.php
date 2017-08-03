@@ -68,6 +68,7 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         $apiKey = Mage::helper('core')->decrypt($apiKey);
         $jsKey = strtolower(array_shift(explode('.', $apiKey)));
 
+        //return '<script src="//calc.divido.dev/calculator.php"></script>';
         return "<script src=\"//cdn.divido.com/calculator/{$jsKey}.js\"></script>";
     }
 

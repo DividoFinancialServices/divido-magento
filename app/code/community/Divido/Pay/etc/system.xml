@@ -48,6 +48,15 @@
                             <show_in_store>0</show_in_store>
                             <sort_order>4</sort_order>
                         </debug>
+                        <countries_allowed translate="label">
+                            <label>Available in</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>The name of the payment option>
+                            <sort_order>5</sort_order>
+                        </countries_allowed>
                         <title translate="label">
                             <label>Title</label>
                             <frontend_type>text</frontend_type>
@@ -55,7 +64,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>5</sort_order>
+                            <sort_order>6</sort_order>
                         </title>
                         <product_page_widget translate="label">
                             <label>Show product page widget</label>
@@ -64,7 +73,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>6</sort_order>
+                            <sort_order>7</sort_order>
                         </product_page_widget>
                         <order_status translate="label">
                             <label>New order status</label>
@@ -73,7 +82,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>7</sort_order>
+                            <sort_order>8</sort_order>
                         </order_status>
                         <order_create_signed translate="label">
                             <label>Create order on signing</label>
@@ -83,7 +92,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>8</sort_order>
+                            <sort_order>9</sort_order>
                         </order_create_signed>
                         <fulfilment_update translate="label">
                             <label>Automatical fulfilment update</label>
@@ -93,7 +102,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>9</sort_order>
+                            <sort_order>10</sort_order>
                         </fulfilment_update>
                         <fulfilment_order_status translate="label">
                             <label>Fulfilment status</label>
@@ -102,7 +111,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>10</sort_order>
+                            <sort_order>11</sort_order>
                         </fulfilment_order_status>
                         <cart_threshold translate="label">
                             <label>Cart amount limit</label>
@@ -111,7 +120,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>11</sort_order>
+                            <sort_order>12</sort_order>
                         </cart_threshold>
                         <product_options translate="label">
                             <label>Product selection</label>
@@ -120,7 +129,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>12</sort_order>
+                            <sort_order>13</sort_order>
                         </product_options>
                         <product_price_treshold translate="label">
                             <label>Price treshold</label>
@@ -128,7 +137,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>13</sort_order>
+                            <sort_order>14</sort_order>
                         </product_price_treshold>
                         <finances_displayed translate="label">
                             <label>Displayed plans</label>
@@ -137,7 +146,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>14</sort_order>
+                            <sort_order>15</sort_order>
                         </finances_displayed>
                         <finances_list translate="label">
                             <label>Plans</label>
@@ -146,7 +155,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>The name of the payment option>
-                            <sort_order>15</sort_order>
+                            <sort_order>16</sort_order>
                         </finances_list>
                         <sort_order translate="label">
                             <label>Sort Order</label>
@@ -154,7 +163,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <sort_order>16</sort_order>
+                            <sort_order>17</sort_order>
                         </sort_order>
                     </fields>
                 </pay>

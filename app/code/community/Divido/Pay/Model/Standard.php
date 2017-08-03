@@ -119,7 +119,13 @@ class Divido_Pay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         $aboveLimit    = $cartTotal >= $cartThreshold;
 
         $billingAddr   = $quote->getBillingAddress()->getData();
-        $rightCountry  = $billingAddr['country_id'] == 'GB';
+
+        $countries_allowed = Mage::getStoreConfig('payment/pay/countries_allowed');
+        if (! is_null($countries_allowed)) {
+            $rightCountry = strpos($countries_allowed, $billingAddr['country_id']) !== false;
+        } else {
+            $rightCountry  = $billingAddr['country_id'] == 'GB';
+        }
 
         return $shippingEqBilling && $hasPlans && $aboveLimit && $rightCountry;
     }
