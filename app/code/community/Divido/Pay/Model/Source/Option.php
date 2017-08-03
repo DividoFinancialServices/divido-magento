@@ -7,11 +7,11 @@ class Divido_Pay_Model_Source_Option extends Mage_Eav_Model_Entity_Attribute_Sou
             $this->_options = array(
                 array(
                     'value' => 'default_plans',
-                    'label' => Mage::helper('pay')->__('Default settings'),
+                    'label' => Mage::helper('divido_pay')->__('Default settings'),
                 ),
                 array(
                     'value' => 'selected_plans',
-                    'label' => Mage::helper('pay')->__('Selected plans'),
+                    'label' => Mage::helper('divido_pay')->__('Selected plans'),
                 ),
             );
         }

@@ -4,7 +4,7 @@
         <reference name="head">
             <block type="core/text" name="divido.base">
                 <action method="setText">
-                    <text helper="pay/getScriptUrl" />
+                    <text helper="divido_pay/getScriptUrl" />
                 </action>
             </block>
             <action method="addCss"><stylesheet>css/Divido/divido.css</stylesheet></action>

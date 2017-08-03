@@ -135,7 +135,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $deposit = round($deposit_percentage * $grand_total, 2);
 
         $salt = uniqid('', true);
-        $quote_hash = Mage::helper('pay')->hashQuote($salt, $quote_id);
+        $quote_hash = Mage::helper('divido_pay')->hashQuote($salt, $quote_id);
 
         $customer = array(
             'title'         => '',
@@ -244,7 +244,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $secretEnc = Mage::getStoreConfig('payment/pay/secret');
         if (!empty($secretEnc)) {
             $reqSign = $this->getRequest()->getHeader('X-DIVIDO-HMAC-SHA256');
-            $signature = Mage::helper('pay')->createSignature($payload);
+            $signature = Mage::helper('divido_pay')->createSignature($payload);
             if ($reqSign !== $signature) {
                 Mage::log('Bad request, invalid signature. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
                 return $this->respond(false, 'invalid signature', false);
@@ -270,7 +270,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         }
 
         $salt = $lookup->getSalt();
-        $hash = Mage::helper('pay')->hashQuote($salt, $data->metadata->quote_id);
+        $hash = Mage::helper('divido_pay')->hashQuote($salt, $data->metadata->quote_id);
         if ($hash !== $data->metadata->quote_hash) {
             Mage::log('Bad request, mismatch in hash. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
             return $this->respond(false, 'invalid hash', false);

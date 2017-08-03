@@ -39,9 +39,9 @@
         </models>
 
         <helpers>
-            <pay>
+            <divido_pay>
                 <class>Divido_Pay_Helper</class>
-            </pay>
+            </divido_pay>
         </helpers>
 
         <events>

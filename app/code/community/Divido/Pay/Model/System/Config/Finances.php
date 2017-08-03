@@ -6,7 +6,7 @@ class Divido_Pay_Model_System_Config_Finances {
         $plans = array();
 
         try {
-            $plans = Mage::helper('pay')->getAllPlans();
+            $plans = Mage::helper('divido_pay')->getAllPlans();
         } catch (Exception $e) {
             Mage::logException($e);
         }

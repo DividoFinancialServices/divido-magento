@@ -13,7 +13,7 @@ class Divido_Pay_Model_Observer
 
     public function updateDefaultProductPlans ($observer)
     {
-        $helper = Mage::helper('pay');
+        $helper = Mage::helper('divido_pay');
         try {
             $plans = $helper->getGlobalSelectedPlans();
         } catch (Exception $e) {
@@ -48,7 +48,7 @@ class Divido_Pay_Model_Observer
 
     public function submitFulfilment ($observer)
     {
-        $helper = Mage::helper('pay');
+        $helper = Mage::helper('divido_pay');
 
         $order = $observer->getOrder();
         $currentStatus = $order->getData('status');

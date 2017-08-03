@@ -7,7 +7,7 @@ class Divido_Pay_Model_Source_Defaultprodplans extends Mage_Eav_Model_Entity_Att
             return $this->_options;
         }
 
-        $plans = Mage::helper('pay')->getAllPlans();
+        $plans = Mage::helper('divido_pay')->getAllPlans();
         
         $this->_options = array();
         foreach ($plans as $plan) {

@@ -43,7 +43,7 @@ class Divido_Pay_Block_Widget extends Mage_Core_Block_Template
     {
         if ($this->active === null) {
             $product = $this->getProduct();
-            $active  = Mage::helper('pay')->isActiveLocal($product, $price);
+            $active  = Mage::helper('divido_pay')->isActiveLocal($product, $price);
 
             $this->active = $active;
         }
@@ -95,8 +95,8 @@ class Divido_Pay_Block_Widget extends Mage_Core_Block_Template
     {
         if ($this->plans === null) {
             $product = $this->getProduct();
-            $plans   = Mage::helper('pay')->getLocalPlans($product);
-            $plans   = Mage::helper('pay')->plans2list($plans);
+            $plans   = Mage::helper('divido_pay')->getLocalPlans($product);
+            $plans   = Mage::helper('divido_pay')->plans2list($plans);
 
             $this->plans = $plans;
         }

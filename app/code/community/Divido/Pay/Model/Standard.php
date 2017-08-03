@@ -112,7 +112,7 @@ class Divido_Pay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     public function isAvailable ($quote = null)
     {
         $shippingEqBilling = $quote->getShippingAddress()->getSameAsBilling();
-        $hasPlans          = Mage::helper('pay')->getQuotePlans($quote);
+        $hasPlans          = Mage::helper('divido_pay')->getQuotePlans($quote);
 
         $cartThreshold = (float) Mage::getStoreConfig('payment/pay/cart_threshold');
         $cartTotal     = (float) $quote->getGrandTotal();
