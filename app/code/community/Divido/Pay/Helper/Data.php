@@ -7,9 +7,29 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
     const CACHE_KEY_PLANS      = 'divido_plans';
     const CACHE_LIFETIME_PLANS = 3600;
 
+    public function getCurrentStore ()
+    {
+		if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+		{
+			$store_id = Mage::getModel('core/store')->load($code)->getId();
+		}
+		elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+		{
+			$website_id = Mage::getModel('core/website')->load($code)->getId();
+			$store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
+		}
+		else // default level
+		{
+			$store_id = 0;
+		}
+
+		return $store_id;
+	}
+
     public function getApiKey ()
     {
-        $apiKey = Mage::getStoreConfig('payment/pay/api_key');
+		$store = $this->getCurrentStore();
+        $apiKey = Mage::getStoreConfig('payment/pay/api_key', $store);
         if (empty($apiKey)) {
             Mage::log('API key not set', null, 'divido.log');
             return array();
