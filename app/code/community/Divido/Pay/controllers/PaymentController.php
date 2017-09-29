@@ -34,6 +34,13 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         self::STATUS_DECLINED,
     );
 
+    public function getLookup($quote_id)
+    {
+        $lookup = Mage::getModel('callback/lookup')->loadActiveByQuoteId($quote_id);
+
+        return $lookup;
+    }
+
     /**
      * Start Standard Checkout and dispatching customer to divido
      */
@@ -56,29 +63,40 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $quote_session      = $checkout_session->getQuote();
         $quote_session_data = $quote_session->getData();
 
-        $existing_lookup = Mage::getModel('callback/lookup')->load($quote_id, 'quote_id');
-        $existingCRId = $existing_lookup->getData('credit_application_id');
-        if ($existing_lookup->getId() 
-            && $existingCRId
-            && !$existing_lookup->getCanceled() 
-            && !$existing_lookup->getDeclined()
-        ) {
+        $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
+        $grand_total = $totals['grand_total']->getValue();
 
-            $dividoApi = new Divido_ApiRequestor();
 
-            try {
-                $result = $dividoApi->request('GET', '/v1/applications', 'id=' . $existingCRId);
-                $result = $result[0];
-                if ($result['status'] == 'ok' && !empty($result['record'])) {
-                    $record = $result['record'];
-                    if (!empty($record['url']) && !in_array($record['status'], array('CANCELED', 'DECLINED'))) {
-                        $this->getResponse()->setRedirect($record['url']);
-                        return;
+        $existing_lookup =  $this->getLookup($quote_id);
+        $existing_lookup_id = $existing_lookup->getId();
+        $existingCRId = $existing_lookup->getData('credit_request_id');
+        if ($existing_lookup_id && $existingCRId) {
+
+            $lookupTotalAmount = $existing_lookup->getData('total_order_amount');
+            $is_cancelled = $existing_lookup->getCanceled();
+            $is_declined = $existing_lookup->getDeclined();
+            if ($grand_total == $lookupTotalAmount && !$is_cancelled && !$is_declined) {
+                $dividoApi = new Divido_ApiRequestor();
+
+                try {
+                    $result = $dividoApi->request('GET', '/v1/applications', 'id=' . $existingCRId);
+                    $result = $result[0];
+                    if ($result['status'] == 'ok' && !empty($result['record'])) {
+                        $record = $result['record'];
+                        if (!empty($record['url']) && !in_array($record['status'], array('CANCELED', 'DECLINED'))) {
+                            $this->getResponse()->setRedirect($record['url']);
+                            return;
+                        }
                     }
+                } catch (Exception $e) {
+                    Mage::log($e->getMessage() , Zend_Log::ERROR, 'divido.log', true);
                 }
-            } catch (Exception $e) {
-                Mage::log($e->getMessage() , Zend_Log::ERROR, 'divido.log', true);
             }
+
+            $existing_lookup->setInvalidatedAt(date(DATE_ATOM));
+            $existing_lookup->save();
+            $existing_lookup_id = null;
+            
         }
 
         $deposit_percentage  = $this->getRequest()->getParam('divido_deposit') / 100;
@@ -115,9 +133,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
                 "value"    => $item_value,
             );
         }
-
-        $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
-        $grand_total = $totals['grand_total']->getValue();
 
         foreach ($totals as $total) {
             if (in_array($total->getCode(), array('subtotal', 'grand_total'))) {
@@ -185,9 +200,10 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $lookup->setSalt($salt);
             $lookup->setCreditRequestId($response->id);
             $lookup->setDepositAmount($deposit);
+            $lookup->setTotalOrderAmount($grand_total);
 
-            if ($existing_lookup->getId()) {
-                $lookup->setId($existing_lookup->getId());
+            if ($existing_lookup_id) {
+                $lookup->setId($existing_lookup_id);
             }
 
             if (Mage::getStoreConfig('payment/pay/debug')) {
@@ -196,7 +212,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
             $lookup->save();
 
-            $this->getResponse()->setRedirect($response->url);
+            //$this->getResponse()->setRedirect($response->url);
             return;
         } else {
             if ($response->status === 'error') {
