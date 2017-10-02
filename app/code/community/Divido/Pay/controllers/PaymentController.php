@@ -292,15 +292,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             return $this->respond(false, 'invalid hash', false);
         }
 
-        // Update Lookup with application ID
-        if (isset($data->application)) {
-            $lookup->setCreditApplicationId($data->application);
-            $lookup->save();
-            if ($debug) {
-                Mage::log("[Quote: {$quoteId}] Lookup: " . json_encode($lookup->getData()), Zend_Log::DEBUG, 'divido.log', true);
-            }
-        }
-
         // If we're cancelled or declined, log it and quit
         if (in_array($data->status, $this->noGo)) {
             if ($debug) {
