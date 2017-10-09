@@ -46,4 +46,13 @@ $installer->getConnection()->dropIndex(
         Varien_Db_Adapter_Interface::INDEX_TYPE_UNIQUE)
 );
 
+$installer->getConnection()->addIndex(
+    $installer->getTable('callback/lookup'),
+    $installer->getIdxName('callback/lookup', 
+        array('quote_id'), 
+        Varien_Db_Adapter_Interface::INDEX_TYPE_INDEX),
+    array('quote_id'),
+    Varien_Db_Adapter_Interface::INDEX_TYPE_INDEX
+);
+
 $installer->endSetup();
