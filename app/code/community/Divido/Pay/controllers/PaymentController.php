@@ -4,7 +4,12 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 {
 
     const
-        NEW_STATUS           = 'processing',
+        M_STATUS_PENDING     = 'pending',
+        M_STATUS_DEFAULT     = 'processing',
+        M_STATUS_HOLDED      = 'holded',
+        M_STATE_NEW          = Mage_Sales_Model_Order::STATE_NEW,
+        M_STATE_HOLDED       = Mage_Sales_Model_Order::STATE_HOLDED,
+        M_STATE_PROCESSING   = Mage_Sales_Model_Order::STATE_PROCESSING,
         STATUS_ACCEPTED      = 'ACCEPTED',
         STATUS_ACTION_LENDER = 'ACTION-LENDER',
         STATUS_CANCELED      = 'CANCELED',
@@ -14,7 +19,9 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         STATUS_DEPOSIT_PAID  = 'DEPOSIT-PAID',
         STATUS_FULFILLED     = 'FULFILLED',
         STATUS_REFERRED      = 'REFERRED',
-        STATUS_SIGNED        = 'SIGNED';
+        STATUS_SIGNED        = 'SIGNED',
+        LOG_FILE             = 'divido.log',
+        EPSILON              = 0.000001;
 
     private $historyMessages = array(
         self::STATUS_ACCEPTED      => 'Credit request accepted',
@@ -33,6 +40,19 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         self::STATUS_CANCELED, 
         self::STATUS_DECLINED,
     );
+
+    private $orderId;
+
+    private $quoteId;
+
+    private $logId;
+
+    public function getLookup($quote_id)
+    {
+        $lookup = Mage::getModel('callback/lookup')->loadActiveByQuoteId($quote_id);
+
+        return $lookup;
+    }
 
     /**
      * Start Standard Checkout and dispatching customer to divido
@@ -56,29 +76,40 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $quote_session      = $checkout_session->getQuote();
         $quote_session_data = $quote_session->getData();
 
-        $existing_lookup = Mage::getModel('callback/lookup')->load($quote_id, 'quote_id');
-        $existingCRId = $existing_lookup->getData('credit_application_id');
-        if ($existing_lookup->getId() 
-            && $existingCRId
-            && !$existing_lookup->getCanceled() 
-            && !$existing_lookup->getDeclined()
-        ) {
+        $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
+        $grand_total = $totals['grand_total']->getValue();
 
-            $dividoApi = new Divido_ApiRequestor();
 
-            try {
-                $result = $dividoApi->request('GET', '/v1/applications', 'id=' . $existingCRId);
-                $result = $result[0];
-                if ($result['status'] == 'ok' && !empty($result['record'])) {
-                    $record = $result['record'];
-                    if (!empty($record['url']) && !in_array($record['status'], array('CANCELED', 'DECLINED'))) {
-                        $this->getResponse()->setRedirect($record['url']);
-                        return;
+        $existing_lookup =  $this->getLookup($quote_id);
+        $existing_lookup_id = $existing_lookup->getId();
+        $existingCRId = $existing_lookup->getData('credit_request_id');
+        if ($existing_lookup_id && $existingCRId) {
+
+            $lookupTotalAmount = $existing_lookup->getData('total_order_amount');
+            $is_cancelled = $existing_lookup->getCanceled();
+            $is_declined = $existing_lookup->getDeclined();
+            if ($grand_total == $lookupTotalAmount && !$is_cancelled && !$is_declined) {
+                $dividoApi = new Divido_ApiRequestor();
+
+                try {
+                    $result = $dividoApi->request('GET', '/v1/applications', 'id=' . $existingCRId);
+                    $result = $result[0];
+                    if ($result['status'] == 'ok' && !empty($result['record'])) {
+                        $record = $result['record'];
+                        if (!empty($record['url']) && !in_array($record['status'], array('CANCELED', 'DECLINED'))) {
+                            $this->getResponse()->setRedirect($record['url']);
+                            return;
+                        }
                     }
+                } catch (Exception $e) {
+                    Mage::log($e->getMessage() , Zend_Log::ERROR, 'divido.log', true);
                 }
-            } catch (Exception $e) {
-                Mage::log($e->getMessage() , Zend_Log::ERROR, 'divido.log', true);
             }
+
+            $existing_lookup->setInvalidatedAt(date(DATE_ATOM));
+            $existing_lookup->save();
+            $existing_lookup_id = null;
+            
         }
 
         $deposit_percentage  = $this->getRequest()->getParam('divido_deposit') / 100;
@@ -115,9 +146,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
                 "value"    => $item_value,
             );
         }
-
-        $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
-        $grand_total = $totals['grand_total']->getValue();
 
         foreach ($totals as $total) {
             if (in_array($total->getCode(), array('subtotal', 'grand_total'))) {
@@ -185,9 +213,10 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $lookup->setSalt($salt);
             $lookup->setCreditRequestId($response->id);
             $lookup->setDepositAmount($deposit);
+            $lookup->setTotalOrderAmount($grand_total);
 
-            if ($existing_lookup->getId()) {
-                $lookup->setId($existing_lookup->getId());
+            if ($existing_lookup_id) {
+                $lookup->setId($existing_lookup_id);
             }
 
             if (Mage::getStoreConfig('payment/pay/debug')) {
@@ -196,7 +225,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
             $lookup->save();
 
-            $this->getResponse()->setRedirect($response->url);
+            //$this->getResponse()->setRedirect($response->url);
             return;
         } else {
             if ($response->status === 'error') {
@@ -229,7 +258,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
     public function webhookAction ()
     {
-        $debug = Mage::getStoreConfig('payment/pay/debug');
 
         $createStatus = self::STATUS_ACCEPTED;
         if (Mage::getStoreConfig('payment/pay/order_create_signed')) {
@@ -237,59 +265,43 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         }
 
         $payload = file_get_contents('php://input');
-        if ($debug) {
-            Mage::log('Update: ' . $payload, Zend_Log::DEBUG, 'divido.log', true);
-        }
+        $this->debug('Update: ' . $payload);
 
         $secretEnc = Mage::getStoreConfig('payment/pay/secret');
         if (!empty($secretEnc)) {
             $reqSign = $this->getRequest()->getHeader('X-DIVIDO-HMAC-SHA256');
             $signature = Mage::helper('divido_pay')->createSignature($payload);
             if ($reqSign !== $signature) {
-                Mage::log('Bad request, invalid signature. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
-                return $this->respond(false, 'invalid signature', false);
+                $this->log("Invalid signature. Sent: {$reqSign}, Calculated: {$reqSign}");
+                return $this->respond(false, 'invalid signature', true);
             }
         }
 
         $data = json_decode($payload);
-        $quoteId = $data->metadata->quote_id;
+        $this->quoteId = $data->metadata->quote_id;
 
         if ($data->event == 'proposal-new-session') {
-            if ($debug) {
-                Mage::log("[Quote: {$quoteId}] Proposal new session", Zend_Log::DEBUG, 'divido.log', true);
-            }
+            $this->debug("Proposal new session");
 
-            return $this->respond(true, '', false);
+            return $this->respond(true, '');
         }
 
-        $lookup = Mage::getModel('callback/lookup');
-        $lookup->load($data->metadata->quote_id, 'quote_id');
+        $lookup = $this->getLookup($this->quoteId);
         if (! $lookup->getId()) {
-            Mage::log('Bad request, could not find lookup. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
-            return $this->respond(false, 'no lookup', false);
+            $this->log('Bad request, could not find lookup.');
+            return $this->respond(false, 'no lookup', true);
         }
 
         $salt = $lookup->getSalt();
-        $hash = Mage::helper('divido_pay')->hashQuote($salt, $data->metadata->quote_id);
+        $hash = Mage::helper('divido_pay')->hashQuote($salt, $this->quoteId);
         if ($hash !== $data->metadata->quote_hash) {
-            Mage::log('Bad request, mismatch in hash. Req: ' . $payload, Zend_Log::WARN, 'divido.log');
-            return $this->respond(false, 'invalid hash', false);
-        }
-
-        // Update Lookup with application ID
-        if (isset($data->application)) {
-            $lookup->setCreditApplicationId($data->application);
-            $lookup->save();
-            if ($debug) {
-                Mage::log("[Quote: {$quoteId}] Lookup: " . json_encode($lookup->getData()), Zend_Log::DEBUG, 'divido.log', true);
-            }
+            $this->log('Bad request, mismatch in hash. Req: ' . $payload);
+            return $this->respond(false, 'invalid hash', true);
         }
 
         // If we're cancelled or declined, log it and quit
         if (in_array($data->status, $this->noGo)) {
-            if ($debug) {
-                Mage::log("[Quote: {$quoteId}] Direct {$data->status}", Zend_Log::DEBUG, 'divido.log', true);
-            }
+            $this->debug("Direct {$data->status}");
 
             if ($data->status == self::STATUS_DECLINED) {
                 $lookup->setDeclined(1);
@@ -299,6 +311,13 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
             $lookup->save();
             return $this->respond();
+        }
+
+        // Try to get quote
+        $quote = Mage::getModel('sales/quote')->load($this->quoteId);
+        if (! $quote->getId()) {
+            $this->log("Could not find quote");
+            return $this->respond(false, 'could not find quote');
         }
 
         // Try to get order
@@ -311,41 +330,62 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         // If no order exists and we're AT the order creation level, create order
         if (!$order->getId() && $data->status == $createStatus) {
-            if ($debug) {
-                Mage::log("[Quote: {$quoteId}] Create order", Zend_Log::DEBUG, 'divido.log', true);
-            }
-
-            $quote = Mage::getModel('sales/quote')
-                ->load($data->metadata->quote_id);
+            $this->debug("Create order");
 
             // Convert quote to order
             $quote->collectTotals();
             $quote_service = Mage::getModel('sales/service_quote', $quote);
-            $quote_service->submitAll();
-            $quote->save();
+            try {
+                $quote_service->submitAll();
+                $quote->save();
 
-            $order = $quote_service->getOrder();
-            $order->setData('state', 'new');
-            $order->setData('status', 'pending');
+                $order = $quote_service->getOrder();
+                if (! $order) {
+                    throw new Exception("Order could not be created");
+                }
+            } catch (Exception $e) {
+                Mage::logException($e);
+                $this->log($e->getMessage());
+                return $this->respond(false, $e->getMessage());
+            }
+
+            $order->setData('state', self::M_STATE_NEW);
+            $order->setData('status', self::M_STATUS_PENDING);
+
+            $lookup->setOrderId($order->getId());
+            $lookup->save();
+
+            $this->debug("Created order.");
         }
 
-        $lookup->setOrderId($order->getId());
-        $lookup->save();
-        if ($debug) {
-            Mage::log("[Quote: {$quoteId}] Lookup: " . json_encode($lookup->getData()), Zend_Log::DEBUG, 'divido.log', true);
+        $orderId = $order->getId();
+
+
+        $lookupTotalAmount = (float) $lookup->getData('total_order_amount');
+        $orderGrandTotal = (float) $order->getGrandTotal();
+        $amountsMatch = abs($lookupTotalAmount - $orderGrandTotal) < self::EPSILON;
+        if (!$amountsMatch) {
+            $this->log("Amount mismatch: Lookup: {$lookupTotalAmount}, Order: {$orderGrandTotal}");
         }
 
         if ($data->status === self::STATUS_SIGNED) {
-            if ($debug) {
-                Mage::log("[Quote: {$quoteId}] Signed", Zend_Log::DEBUG, 'divido.log', true);
-            }
+            $this->debug("Signed");
 
-            $newStatus = self::NEW_STATUS;
-            if ($statusOverride = Mage::getStoreConfig('payment/pay/order_status')) {
-                $newStatus = $statusOverride;
+            if ($amountsMatch) {
+                $newStatus = self::M_STATUS_DEFAULT;
+                if ($statusOverride = Mage::getStoreConfig('payment/pay/order_status')) {
+                    $newStatus = $statusOverride;
+                }
+                $order->setData('status', $newStatus);
+                $order->sendNewOrderEmail();
+            } else {
+                $order->setData('state', self::M_STATE_HOLDED);
+                $order->setData('status', self::M_STATUS_HOLDED);
+
+                $history = $order->addStatusHistoryComment("Divido: Credit amount does not match order amount.", false);
+                $history->setIsCustomerNotified(false);
+                $this->log("Holded order due to mismatch of order grand total and lookup grand total");
             }
-            $order->setData('status', $newStatus);
-            $order->sendNewOrderEmail();
         }
 
         if (isset($historyMessages[$data->status])) {
@@ -359,10 +399,55 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
     }
 
-    private function respond ($ok = true, $message = '') {
-        $this->getResponse()->clearHeaders()->setHeader('Content-type','application/json', true);
+    private function debug ($msg)
+    {
+        $debug = Mage::getStoreConfig('payment/pay/debug');
+        if (! $debug) {
+            return;
+        }
+
+        $this->log($msg, Zend_Log::DEBUG);
+    }  
+
+    private function log ($msg, $level = Zend_log::WARN)
+    {
+        if (empty($this->logId)) {
+            $this->logId = (string) microtime(true);
+        }
+
+        $prefix = array($this->logId);
+
+        if ($this->quoteId) {
+            $prefix[] = "QuoteId: {$this->quoteId}";
+        }
+
+        if ($this->orderId) {
+            $prefix[] = "OrderId: {$this->orderId}";
+        }
+
+        if ($prefix) {
+            $msg = "[" . implode(', ', $prefix) . "] " . $msg;
+        }
+
+        Mage::log($msg, $level, self::LOG_FILE, true);
+    }
+
+    private function respond ($ok = true, $message = '', $bad_reqeust = false)
+    {
+        $response = $this->getResponse()
+            ->clearHeaders()
+            ->setHeader('Content-type','application/json', true);
 
         $pluginVersion = (string) Mage::getConfig()->getModuleConfig("Divido_Pay")->version;
+
+        if ($ok) {
+            $code = 200;
+        } elseif ($bad_reqeust) {
+            $code = 400;
+        } else {
+            $code = 500;
+        }
+
         $status = $ok ? 'ok' : 'error';
 
         $response = array(
@@ -372,6 +457,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'plugin_version'   => $pluginVersion,
         );
 
-        $this->getResponse()->setBody(json_encode($response));
+        $this->getResponse()
+            ->setHttpResponseCode($code)
+            ->setBody(json_encode($response));
     }
 }
