@@ -75,7 +75,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $quote_id           = $checkout_session->getQuoteId();
         $quote_session      = $checkout_session->getQuote();
         $quote_session_data = $quote_session->getData();
-
+      
         $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
         $grand_total = $totals['grand_total']->getValue();
 
@@ -119,6 +119,23 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $shipAddr   = $quote_session->getShippingAddress();
         $shipping   = $shipAddr->getData();
+        
+        $billAddr   = $quote_session->getBillingAddress();
+        $billing    = $billAddr->getData();
+
+
+        //* Address Items Credit Request
+        $billingAddressStreet   = $billing['street'];
+        $billingAddressPostcode = $billing['postcode'];
+        $billingAddressCity     = $billing['city'];
+        $billingAddressRegion   = $billing['region'];
+
+        $shippingAddressStreet   = $shipping['street'];
+        $shippingAddressPostcode = $shipping['postcode'];
+        $shippingAddressCity     = $shipping['city'];
+        $shippingAddressRegion   = $shipping['region'];
+        
+        
         $postcode   = $shipping['postcode'];
         $telephone  = $shipping['telephone'];
         $firstname  = $shipping['firstname'];
@@ -165,33 +182,50 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $salt = uniqid('', true);
         $quote_hash = Mage::helper('divido_pay')->hashQuote($salt, $quote_id);
 
-        $customer = array(
-            'title'         => '',
-            'first_name'    => $firstname,
-            'middle_name'   => $middlename,
-            'last_name'     => $lastname,
-            'country'       => $country,
-            'postcode'      => $postcode,
-            'email'         => $email,
-            'mobile_number' => '',
-            'phone_number'  => $telephone,
+        $shippingAddress = array(
+            'postcode'  => $shippingAddressPostcode,
+            'street'    => $shippingAddressStreet,
+            'town'      => $shippingAddressCity,
+            'region'    => $shippingAddressRegion,
+            
         );
 
+        $billingAddress = array(
+            'postcode'  => $billingAddressPostcode,
+            'street'    => $billingAddressStreet,
+            'town'      => $billingAddressCity,
+            'region'    => $billingAddressRegion,
+        );
+
+        $customer = array(
+            'title'             => '',
+            'first_name'        => $firstname,
+            'middle_name'       => $middlename,
+            'last_name'         => $lastname,
+            'country'           => $country,
+            'postcode'          => $postcode,
+            'email'             => $email,
+            'mobile_number'     => '',
+            'phone_number'      => $telephone,
+            'shippingAddress'   => $shippingAddress,
+            'address'           => $billingAddress
+        );
+                        
         $metadata = array(
             'quote_id'   => $quote_id,
             'quote_hash' => $quote_hash,
         );
 
         $request_data = array(
-            'merchant'     => $apiKey,
-            'deposit'      => $deposit,
-            'finance'      => $finance,
-            'country'      => $country,
-            'language'     => $language,
-            'currency'     => $currency,
-            'metadata'     => $metadata,
-            'customer'     => $customer,
-            'products'     => $products,
+            'merchant'          => $apiKey,
+            'deposit'           => $deposit,
+            'finance'           => $finance,
+            'country'           => $country,
+            'language'          => $language,
+            'currency'          => $currency,
+            'metadata'          => $metadata,
+            'customer'          => $customer,
+            'products'          => $products,
             'response_url' => Mage::getUrl('pay/payment/webhook'),
             'checkout_url' => Mage::helper('checkout/url')->getCheckoutUrl(),
             'redirect_url' => Mage::getUrl('pay/payment/return', array('quote_id' => $quote_id)),
