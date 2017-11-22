@@ -183,17 +183,26 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $quote_hash = Mage::helper('divido_pay')->hashQuote($salt, $quote_id);
 
         $shippingAddress = array(
-            'postcode'  => $shippingAddressPostcode,
-            'street'    => $shippingAddressStreet,
-            'town'      => $shippingAddressCity,
-            'region'    => $shippingAddressRegion,
+
+            'postcode'          => $shippingAddressPostcode,
+            'street'            => $shippingAddressStreet,
+            'flat'              => '',
+            'buildingNumber'    => '',
+            'buildingName'      => '',
+            'town'              => $shippingAddressCity,
+            'flat'              => '',
+            'region'            => $shippingAddressRegion,
             
         );
 
         $billingAddress = array(
             'postcode'  => $billingAddressPostcode,
             'street'    => $billingAddressStreet,
+            'flat'              => '',
+            'buildingNumber'    => '',
+            'buildingName'      => '',
             'town'      => $billingAddressCity,
+            'flat'              => '',            
             'region'    => $billingAddressRegion,
         );
 
