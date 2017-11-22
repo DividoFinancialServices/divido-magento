@@ -124,7 +124,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $billing    = $billAddr->getData();
 
 
-        //* Address Items Credit Request
         $billingAddressStreet   = $billing['street'];
         $billingAddressPostcode = $billing['postcode'];
         $billingAddressCity     = $billing['city'];
@@ -193,12 +192,12 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         );
 
         $billingAddress = array(
-            'postcode'  => $billingAddressPostcode,
-            'street'    => $billingAddressStreet,
+            'postcode'          => $billingAddressPostcode,
+            'street'            => $billingAddressStreet,
             'flat'              => '',
             'buildingNumber'    => '',
             'buildingName'      => '',
-            'town'      => $billingAddressCity,
+            'town'              => $billingAddressCity,
             'flat'              => '',            
         );
 
@@ -222,15 +221,15 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         );
 
         $request_data = array(
-            'merchant'          => $apiKey,
-            'deposit'           => $deposit,
-            'finance'           => $finance,
-            'country'           => $country,
-            'language'          => $language,
-            'currency'          => $currency,
-            'metadata'          => $metadata,
-            'customer'          => $customer,
-            'products'          => $products,
+            'merchant'     => $apiKey,
+            'deposit'      => $deposit,
+            'finance'      => $finance,
+            'country'      => $country,
+            'language'     => $language,
+            'currency'     => $currency,
+            'metadata'     => $metadata,
+            'customer'     => $customer,
+            'products'     => $products,
             'response_url' => Mage::getUrl('pay/payment/webhook'),
             'checkout_url' => Mage::helper('checkout/url')->getCheckoutUrl(),
             'redirect_url' => Mage::getUrl('pay/payment/return', array('quote_id' => $quote_id)),
