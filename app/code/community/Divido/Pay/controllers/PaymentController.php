@@ -225,7 +225,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
             $lookup->save();
 
-            //$this->getResponse()->setRedirect($response->url);
+            $this->getResponse()->setRedirect($response->url);
             return;
         } else {
             if ($response->status === 'error') {
