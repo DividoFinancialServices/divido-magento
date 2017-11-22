@@ -124,9 +124,10 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $billing    = $billAddr->getData();
 
 
-        $billingAddressStreet   = $billing['street'];
-        $billingAddressPostcode = $billing['postcode'];
-        $billingAddressCity     = $billing['city'];
+        $addressStreet   = $billing['street'];
+        $addressPostcode = $billing['postcode'];
+        $addressCity     = $billing['city'];
+        $addressText     = implode(' ' , array($addressStreet,$addressCity,$addressPostcode));
 
         $shippingAddressStreet   = $shipping['street'];
         $shippingAddressPostcode = $shipping['postcode'];
@@ -180,7 +181,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $quote_hash = Mage::helper('divido_pay')->hashQuote($salt, $quote_id);
 
         $shippingAddress = array(
-
             'postcode'          => $shippingAddressPostcode,
             'street'            => $shippingAddressStreet,
             'flat'              => '',
@@ -188,17 +188,18 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'buildingName'      => '',
             'town'              => $shippingAddressCity,
             'flat'              => '',
-            
         );
 
-        $billingAddress = array(
-            'postcode'          => $billingAddressPostcode,
-            'street'            => $billingAddressStreet,
+
+        $address = array(
+            'postcode'          => $addressPostcode,
+            'street'            => $addressStreet,
             'flat'              => '',
             'buildingNumber'    => '',
             'buildingName'      => '',
-            'town'              => $billingAddressCity,
-            'flat'              => '',            
+            'town'              => $addressCity,
+            'flat'              => '',
+            'text'              => $addressText,            
         );
 
         $customer = array(
@@ -212,7 +213,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'mobile_number'     => '',
             'phone_number'      => $telephone,
             'shippingAddress'   => $shippingAddress,
-            'address'           => $billingAddress
+            'address'           => $address
         );
                         
         $metadata = array(
