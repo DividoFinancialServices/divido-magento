@@ -128,12 +128,10 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $billingAddressStreet   = $billing['street'];
         $billingAddressPostcode = $billing['postcode'];
         $billingAddressCity     = $billing['city'];
-        $billingAddressRegion   = $billing['region'];
 
         $shippingAddressStreet   = $shipping['street'];
         $shippingAddressPostcode = $shipping['postcode'];
         $shippingAddressCity     = $shipping['city'];
-        $shippingAddressRegion   = $shipping['region'];
         
         
         $postcode   = $shipping['postcode'];
@@ -191,7 +189,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'buildingName'      => '',
             'town'              => $shippingAddressCity,
             'flat'              => '',
-            'region'            => $shippingAddressRegion,
             
         );
 
@@ -203,7 +200,6 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'buildingName'      => '',
             'town'      => $billingAddressCity,
             'flat'              => '',            
-            'region'    => $billingAddressRegion,
         );
 
         $customer = array(
