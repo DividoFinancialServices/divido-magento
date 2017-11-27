@@ -21,8 +21,9 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         STATUS_REFERRED      = 'REFERRED',
         STATUS_SIGNED        = 'SIGNED',
         LOG_FILE             = 'divido.log',
-        EPSILON              = 0.000001;
-
+        EPSILON              = 0.000001,
+        DIVIDO_WAIT_TIME     = 5;
+        
     private $historyMessages = array(
         self::STATUS_ACCEPTED      => 'Credit request accepted',
         self::STATUS_ACTION_LENDER => 'Lender notified',
@@ -286,7 +287,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $session->setLastQuoteId($quoteId)->setLastSuccessQuoteId($quoteId);
 
-        while($i < 5) {
+        while($i < self::DIVIDO_WAIT_TIME) {
             $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $quoteId);
             if ($order->getId()) {
                 if (Mage::getStoreConfig('payment/pay/debug')) {                    
