@@ -21,8 +21,9 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         STATUS_REFERRED      = 'REFERRED',
         STATUS_SIGNED        = 'SIGNED',
         LOG_FILE             = 'divido.log',
-        EPSILON              = 0.000001;
-
+        EPSILON              = 0.000001,
+        DIVIDO_WAIT_TIME     = 5;
+        
     private $historyMessages = array(
         self::STATUS_ACCEPTED      => 'Credit request accepted',
         self::STATUS_ACTION_LENDER => 'Lender notified',
@@ -286,7 +287,24 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $session->setLastQuoteId($quoteId)->setLastSuccessQuoteId($quoteId);
 
-        $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $quoteId);
+        $i=0;
+        while($i < self::DIVIDO_WAIT_TIME) {
+            $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $quoteId);
+            if ($order->getId()) {
+                if (Mage::getStoreConfig('payment/pay/debug')) {                    
+                    Mage::log('already have order with id ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
+                }
+                break;
+            }else { 
+                if (Mage::getStoreConfig('payment/pay/debug')) {                    
+                    Mage::log('order not created waiting: ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
+                }        
+                $i++;
+                sleep(1);
+            }
+    
+        }
+
         if ($orderId = $order->getId()) {
             $session->setLastOrderId($orderId)
                 ->setLastRealOrderId($order->getIncrementId());
