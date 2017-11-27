@@ -289,10 +289,14 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         while($i < 5) {
             $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $quoteId);
             if ($order->getId()) {
-                Mage::log('already have order with id ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
+                if (Mage::getStoreConfig('payment/pay/debug')) {                    
+                    Mage::log('already have order with id ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
+                }
                 $i=6;
             }else { 
-                Mage::log('order not created waiting: ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
+                if (Mage::getStoreConfig('payment/pay/debug')) {                    
+                    Mage::log('order not created waiting: ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
+                }        
                 $i++;
                 sleep(1);
             }
