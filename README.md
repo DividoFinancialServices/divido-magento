@@ -18,4 +18,8 @@ skin/frontend/base/default/css/Divido/
 
 drop the table `<prefix>divido_lookup`
 
+Remove any row with the prefix divido from the table `core_resource`
 
+```
+DELETE FROM `core_resource` WHERE `core_resource`.`code` = \'divido_pay_setup\'"
+```
