@@ -287,6 +287,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $session->setLastQuoteId($quoteId)->setLastSuccessQuoteId($quoteId);
 
+        $i=0;
         while($i < self::DIVIDO_WAIT_TIME) {
             $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $quoteId);
             if ($order->getId()) {
