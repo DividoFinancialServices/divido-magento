@@ -292,7 +292,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
                 if (Mage::getStoreConfig('payment/pay/debug')) {                    
                     Mage::log('already have order with id ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
                 }
-                $i=6;
+                break;
             }else { 
                 if (Mage::getStoreConfig('payment/pay/debug')) {                    
                     Mage::log('order not created waiting: ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
