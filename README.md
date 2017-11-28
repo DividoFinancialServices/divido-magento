@@ -16,6 +16,8 @@ lib/Divido/
 skin/frontend/base/default/css/Divido/
 ```
 
-drop the table `<prefix>divido_lookup`
-
-
+Run the following SQL queries
+```
+DROP TABLE <prefix>divido_lookup;
+DELETE FROM <prefix>core_resource WHERE code = 'divido_pay_setup';
+```
