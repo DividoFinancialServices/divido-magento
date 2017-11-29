@@ -9,26 +9,25 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getCurrentStore ()
     {
-		if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
-		{
-			$store_id = Mage::getModel('core/store')->load($code)->getId();
-		}
-		elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
-		{
-			$website_id = Mage::getModel('core/website')->load($code)->getId();
-			$store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
-		}
-		else // default level
-		{
-			$store_id = 0;
-		}
+        if (! Mage::app()->getStore()->isAdmin()) {
+            return null;
+        }
 
-		return $store_id;
-	}
+        $store_id = 0;
+        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) {
+            $store_id = Mage::getModel('core/store')->load($code)->getId();
+        }
+        elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) {
+            $website_id = Mage::getModel('core/website')->load($code)->getId();
+            $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
+        }
+
+        return $store_id;
+    }
 
     public function getApiKey ()
     {
-		$store = $this->getCurrentStore();
+        $store = $this->getCurrentStore();
         $apiKey = Mage::getStoreConfig('payment/pay/api_key', $store);
         if (empty($apiKey)) {
             Mage::log('API key not set', null, 'divido.log');
@@ -42,9 +41,10 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
     public function getAllPlans ()
     {
         $apiKey = $this->getApiKey();
+        $cacheKey = self::CACHE_KEY_PLANS . md5($apiKey);
 
         $cache = Mage::app()->getCache();
-        if ($plans = $cache->load(self::CACHE_KEY_PLANS)) {
+        if ($plans = $cache->load($cacheKey)) {
             $plans = unserialize($plans);
             return $plans;
         }
@@ -60,7 +60,7 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
 
         $plans = $response->finances;
 
-        $cache->save(serialize($plans), self::CACHE_KEY_PLANS, array('divido_cache'), self::CACHE_LIFETIME_PLANS);
+        $cache->save(serialize($plans), $cacheKey, array('divido_cache'), self::CACHE_LIFETIME_PLANS);
 
         return $plans;
     }
