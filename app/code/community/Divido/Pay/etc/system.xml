@@ -114,7 +114,7 @@
                             <sort_order>11</sort_order>
                         </fulfilment_order_status>
                         <cart_threshold translate="label">
-                            <label>Minimum Cart Amount</label>
+                            <label>Minimum cart amount</label>
                             <tooltip>Under this amount, Divido is not available as a payment option</tooltip>
                             <frontend_type>text</frontend_type>
                             <show_in_default>1</show_in_default>
