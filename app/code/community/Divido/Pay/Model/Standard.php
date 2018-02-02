@@ -111,14 +111,19 @@ class Divido_Pay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
     public function isAvailable ($quote = null)
     {
-        $shippingEqBilling = $quote->getShippingAddress()->getSameAsBilling();
-        $hasPlans          = Mage::helper('divido_pay')->getQuotePlans($quote);
-
-        $cartThreshold = (float) Mage::getStoreConfig('payment/pay/cart_threshold');
-        $cartTotal     = (float) $quote->getGrandTotal();
-        $aboveLimit    = $cartTotal >= $cartThreshold;
-
-        $billingAddr   = $quote->getBillingAddress()->getData();
+        if($quote){
+            $shippingEqBilling = $quote->getShippingAddress()->getSameAsBilling();
+            if($shippingEqBilling)
+            $hasPlans          = Mage::helper('divido_pay')->getQuotePlans($quote);
+    
+            $cartThreshold = (float) Mage::getStoreConfig('payment/pay/cart_threshold');
+            $cartTotal     = (float) $quote->getGrandTotal();
+            $aboveLimit    = $cartTotal >= $cartThreshold;
+    
+            $billingAddr   = $quote->getBillingAddress()->getData();
+        }else{
+            return false;
+        }
 
         $countries_allowed = Mage::getStoreConfig('payment/pay/countries_allowed');
         if (! is_null($countries_allowed)) {
@@ -126,7 +131,9 @@ class Divido_Pay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         } else {
             $rightCountry  = $billingAddr['country_id'] == 'GB';
         }
-
+    
         return $shippingEqBilling && $hasPlans && $aboveLimit && $rightCountry;
+
     }
+    
 }
