@@ -29,7 +29,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         STATUS_SIGNED        = 'SIGNED',
         LOG_FILE             = 'divido.log',
         EPSILON              = 0.000001,
-        DIVIDO_WAIT_TIME     = 5;
+        DIVIDO_WAIT_TIME     = 7;
         
     private $historyMessages = array(
         self::STATUS_ACCEPTED      => 'Credit request accepted',
@@ -400,6 +400,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $this->debug("Create order");
 
             // Convert quote to order
+            $quote->getShippingAddress()->setCollectShippingRates(true);
             $quote->collectTotals();
             $quote_service = Mage::getModel('sales/service_quote', $quote);
 
@@ -431,6 +432,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             }
 
             try {
+
                 $quote_service->submitAll();
                 $quote->save();
 
@@ -447,6 +449,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $order->setData('state', self::M_STATE_NEW);
             $order->setData('status', self::M_STATUS_PENDING);
 
+            $this->debug('data application:'.$data->application);
+            $lookup->setCreditApplicationId($data->application);
             $lookup->setOrderId($order->getId());
             $lookup->save();
 
