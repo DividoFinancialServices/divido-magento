@@ -3,6 +3,13 @@ require_once(Mage::getBaseDir('lib') . '/Divido/Divido.php');
 class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 {
 
+        /**
+     * Checkout types: Checkout as Guest, Register, Logged In Customer
+     */
+    const METHOD_GUEST    = 'guest';
+    const METHOD_REGISTER = 'register';
+    const METHOD_CUSTOMER = 'customer';
+
     const
         M_STATUS_PENDING     = 'pending',
         M_STATUS_DEFAULT     = 'processing',
@@ -22,7 +29,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         STATUS_SIGNED        = 'SIGNED',
         LOG_FILE             = 'divido.log',
         EPSILON              = 0.000001,
-        DIVIDO_WAIT_TIME     = 5;
+        DIVIDO_WAIT_TIME     = 7;
         
     private $historyMessages = array(
         self::STATUS_ACCEPTED      => 'Credit request accepted',
@@ -76,8 +83,9 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $quote_id           = $checkout_session->getQuoteId();
         $quote_session      = $checkout_session->getQuote();
         $quote_session_data = $quote_session->getData();
-      
-        $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
+        $checkout_type      = $quote_session->getCheckoutMethod();
+
+        $totals = $quote_session->getTotals();
         $grand_total = $totals['grand_total']->getValue();
 
 
@@ -258,6 +266,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             if ($existing_lookup_id) {
                 $lookup->setId($existing_lookup_id);
             }
+            $lookup->setCustomerCheckout($checkout_type);
+
 
             if (Mage::getStoreConfig('payment/pay/debug')) {
                 Mage::log('Lookup: ' . json_encode($lookup->getData()), Zend_Log::DEBUG, 'divido.log', true);
@@ -390,9 +400,39 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $this->debug("Create order");
 
             // Convert quote to order
+            $quote->getShippingAddress()->setCollectShippingRates(true);
             $quote->collectTotals();
             $quote_service = Mage::getModel('sales/service_quote', $quote);
+
+            $checkout_type=$lookup->getData('customer_checkout');
+            
+            //Customer type
+            switch ($checkout_type) {
+                case self::METHOD_GUEST:
+                $this->debug("Prepare Guest Quote");
+                    $this->_prepareGuestQuote($quote);
+                    break;
+                case self::METHOD_REGISTER:
+                $this->debug("Prepare New Customer Quote");
+                    $this->_prepareNewCustomerQuote($quote);
+                    $isNewCustomer = true;
+                    break;
+                case self::METHOD_CUSTOMER:
+                    $this->debug("Prepare  Customer Quote 1");
+                        $this->_prepareCustomerQuote($quote);
+                        break;
+                case 'login_in':
+                        $this->debug("Prepare Customer Quote 2");
+                            $this->_prepareCustomerQuote($quote);
+                            break;          
+                default:
+                $this->debug("Prepare guest Quote defualt");
+                    $this->_prepareGuestQuote($quote);
+                    break;
+            }
+
             try {
+
                 $quote_service->submitAll();
                 $quote->save();
 
@@ -409,6 +449,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $order->setData('state', self::M_STATE_NEW);
             $order->setData('status', self::M_STATUS_PENDING);
 
+            $this->debug('data application:'.$data->application);
+            $lookup->setCreditApplicationId($data->application);
             $lookup->setOrderId($order->getId());
             $lookup->save();
 
@@ -517,5 +559,145 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $this->getResponse()
             ->setHttpResponseCode($code)
             ->setBody(json_encode($response));
+    }
+
+        /**
+     * Prepare quote for guest checkout order submit
+     *
+     * @return Mage_Checkout_Model_Type_Onepage
+     */
+    protected function _prepareGuestQuote($quote)
+    {
+        $quote->setCustomerId(null)
+            ->setCustomerEmail($quote->getBillingAddress()->getEmail())
+            ->setCustomerIsGuest(true)
+            ->setCustomerGroupId(Mage_Customer_Model_Group::NOT_LOGGED_IN_ID);
+        return $this;
+    }
+
+    /**
+     * Prepare quote for customer registration and customer order submit
+     *
+     * @return Mage_Checkout_Model_Type_Onepage
+     */
+    protected function _prepareNewCustomerQuote($quote)
+    {
+        $billing    = $quote->getBillingAddress();
+        $shipping   = $quote->isVirtual() ? null : $quote->getShippingAddress();
+
+        //$customer = Mage::getModel('customer/customer');
+        $customer = $quote->getCustomer();
+        /* @var $customer Mage_Customer_Model_Customer */
+        $customerBilling = $billing->exportCustomerAddress();
+        $customer->addAddress($customerBilling);
+        $billing->setCustomerAddress($customerBilling);
+        $customerBilling->setIsDefaultBilling(true);
+        if ($shipping && !$shipping->getSameAsBilling()) {
+            $customerShipping = $shipping->exportCustomerAddress();
+            $customer->addAddress($customerShipping);
+            $shipping->setCustomerAddress($customerShipping);
+            $customerShipping->setIsDefaultShipping(true);
+        } else {
+            $customerBilling->setIsDefaultShipping(true);
+        }
+
+        Mage::helper('core')->copyFieldset('checkout_onepage_quote', 'to_customer', $quote, $customer);
+        $customer->setPassword($customer->decryptPassword($quote->getPasswordHash()));
+        $quote->setCustomer($customer)
+            ->setCustomerId(true);
+    }
+
+    /**
+     * Prepare quote for customer order submit
+     *
+     * @return Mage_Checkout_Model_Type_Onepage
+     */
+    protected function _prepareCustomerQuote($quote)
+    {
+        $billing    = $quote->getBillingAddress();
+        $shipping   = $quote->isVirtual() ? null : $quote->getShippingAddress();
+
+        //$customer = $this->getCustomerSession()->getCustomer();
+        $customer = $quote->getCustomer();
+        if (!$billing->getCustomerId() || $billing->getSaveInAddressBook()) {
+            $customerBilling = $billing->exportCustomerAddress();
+            $customer->addAddress($customerBilling);
+            $billing->setCustomerAddress($customerBilling);
+        }
+        if ($shipping && !$shipping->getSameAsBilling() &&
+            (!$shipping->getCustomerId() || $shipping->getSaveInAddressBook())) {
+            $customerShipping = $shipping->exportCustomerAddress();
+            $customer->addAddress($customerShipping);
+            $shipping->setCustomerAddress($customerShipping);
+        }
+
+        if (isset($customerBilling) && !$customer->getDefaultBilling()) {
+            $customerBilling->setIsDefaultBilling(true);
+        }
+        if ($shipping && isset($customerShipping) && !$customer->getDefaultShipping()) {
+            $customerShipping->setIsDefaultShipping(true);
+        } else if (isset($customerBilling) && !$customer->getDefaultShipping()) {
+            $customerBilling->setIsDefaultShipping(true);
+        }
+        $quote->setCustomer($customer);
+        ;
+    }
+
+    /**
+     * Involve new customer to system
+     *
+     * @return Mage_Checkout_Model_Type_Onepage
+     */
+    protected function _involveNewCustomer()
+    {
+        $customer = $this->getQuote()->getCustomer();
+        if ($customer->isConfirmationRequired()) {
+            $customer->sendNewAccountEmail('confirmation', '', $this->getQuote()->getStoreId());
+            $url = Mage::helper('customer')->getEmailConfirmationUrl($customer->getEmail());
+            $this->getCustomerSession()->addSuccess(
+                Mage::helper('customer')->__('Account confirmation is required. Please, check your e-mail for confirmation link. To resend confirmation email please <a href="%s">click here</a>.', $url)
+            );
+        } else {
+            $customer->sendNewAccountEmail('registered', '', $this->getQuote()->getStoreId());
+            $this->getCustomerSession()->loginById($customer->getId());
+        }
+        return $this;
+    }
+
+
+    /**
+     * Get customer session object
+     *
+     * @return Mage_Customer_Model_Session
+     */
+    public function getCustomerSession()
+    {
+        return Mage::getSingleton('customer/session');
+    }
+
+
+        /**
+     * Get frontend checkout session object
+     *
+     * @return Mage_Checkout_Model_Session
+     */
+    /*
+    public function getCheckout()
+    {
+        return $this->_checkoutSession;
+    }
+    */
+
+    /**
+     * Quote object getter
+     *
+     * @return Mage_Sales_Model_Quote
+     */
+    public function getQuote()
+    {
+        if ($this->_quote === null) {
+            return $this->_checkoutSession->getQuote();
+        }
+        return $this->_quote;
     }
 }

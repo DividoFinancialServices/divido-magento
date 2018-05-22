@@ -132,7 +132,7 @@
                             <sort_order>13</sort_order>
                         </product_options>
                         <product_price_treshold translate="label">
-                            <label>Price treshold</label>
+                            <label>Price threshold</label>
                             <frontend_type>text</frontend_type>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>

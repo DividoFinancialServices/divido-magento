@@ -75,7 +75,7 @@ class Divido_Pay_Helper_Data extends Mage_Core_Helper_Abstract
         );
 
         Divido::setMerchant($apiKey);
-        Divido_Fulfillment::fulfill($params);
+        Divido_Activation::activate($params);
     }
 
     public function getScriptUrl ()
