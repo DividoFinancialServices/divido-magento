@@ -85,7 +85,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $quote_session_data = $quote_session->getData();
         $checkout_type      = $quote_session->getCheckoutMethod();
 
-        $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
+        $totals = $quote_session->getTotals();
         $grand_total = $totals['grand_total']->getValue();
 
 
