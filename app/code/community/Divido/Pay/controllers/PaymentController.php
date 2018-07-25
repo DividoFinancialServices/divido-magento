@@ -132,13 +132,12 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $billAddr   = $quote_session->getBillingAddress();
         $billing    = $billAddr->getData();
 
-
-        $addressStreet   = $billing['street'];
+        $addressStreet = str_replace("\n"," ",$billing['street']);
         $addressPostcode = $billing['postcode'];
         $addressCity     = $billing['city'];
         $addressText     = implode(' ' , array($addressStreet,$addressCity,$addressPostcode));
 
-        $shippingAddressStreet   = $shipping['street'];
+        $shippingAddressStreet   = str_replace("\n"," ", $shipping['street']);
         $shippingAddressPostcode = $shipping['postcode'];
         $shippingAddressCity     = $shipping['city'];
         
