@@ -20,4 +20,5 @@ Run the following SQL queries
 ```
 DROP TABLE <prefix>divido_lookup;
 DELETE FROM <prefix>core_resource WHERE code = 'divido_pay_setup';
+DELETE FROM eav_attribute where attribute_code LIKE '%divido%'
 ```
