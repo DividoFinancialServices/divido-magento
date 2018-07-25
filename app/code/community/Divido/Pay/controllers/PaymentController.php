@@ -240,7 +240,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'metadata'     => $metadata,
             'customer'     => $customer,
             'products'     => $products,
-            'response_url' => Mage::getUrl('pay/payment/webhook'),
+            'response_url' => Mage::getUrl('pay/payment/webhook',array('_secure'=>true)),
             'checkout_url' => Mage::helper('checkout/url')->getCheckoutUrl(),
             'redirect_url' => Mage::getUrl('pay/payment/return', array('quote_id' => $quote_id)),
         );
