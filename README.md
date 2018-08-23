@@ -16,7 +16,7 @@ lib/Divido/
 skin/frontend/base/default/css/Divido/
 ```
 
-Run the following SQL queries
+Run the following SQL queries - replacing <prefix> with the prefix of your db if it exists or removing it
 ```
 DROP TABLE <prefix>divido_lookup;
 DELETE FROM <prefix>core_resource WHERE code = 'divido_pay_setup';
