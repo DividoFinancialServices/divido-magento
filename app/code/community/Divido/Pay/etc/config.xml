@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <config>
     <modules>
-        <Divido_Pay>
-            <version>0.10.3</version>
-        </Divido_Pay>
+        <divido_pay>
+            <version>0.10.4</version>
+        </divido_pay>
     </modules>
-
     <adminhtml>
         <layout>
             <updates>
@@ -15,7 +14,6 @@
             </updates>
         </layout>
     </adminhtml>
-
     <global>
         <models>
             <pay>
@@ -37,13 +35,11 @@
 				</entities>
 			</callback_resource>
         </models>
-
         <helpers>
             <divido_pay>
                 <class>Divido_Pay_Helper</class>
             </divido_pay>
         </helpers>
-
         <events>
             <admin_system_config_changed_section_payment>
                 <observers>
@@ -66,7 +62,6 @@
                 </observers>
             </sales_order_save_after>
         </events>
-
         <blocks>
             <pay>
                 <class>Divido_Pay_Block</class>
@@ -75,7 +70,6 @@
                 <class>Divido_Widget_Block</class>
             </dividowidget>
         </blocks>
-
         <resources>
             <divido_pay_setup>
                 <setup>
@@ -97,7 +91,6 @@
                 </connection>
             </pay_read>
         </resources>
-
         <sales>
             <quote>
                 <item>
@@ -108,9 +101,7 @@
                 </item>
             </quote>
         </sales>
-
     </global>
-
     <!-- declare default configuration values for this module -->
     <default>
         <payment>
