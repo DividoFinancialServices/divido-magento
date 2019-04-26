@@ -2,7 +2,7 @@
 <config>
     <modules>
         <divido_pay>
-            <version>0.10.4</version>
+            <version>0.10.5</version>
         </divido_pay>
     </modules>
     <adminhtml>

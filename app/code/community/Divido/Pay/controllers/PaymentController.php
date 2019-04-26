@@ -27,6 +27,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         STATUS_FULFILLED     = 'FULFILLED',
         STATUS_REFERRED      = 'REFERRED',
         STATUS_SIGNED        = 'SIGNED',
+        STATUS_READY         = 'READY',
         LOG_FILE             = 'divido.log',
         EPSILON              = 0.000001,
         DIVIDO_WAIT_TIME     = 7;
@@ -41,11 +42,12 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         self::STATUS_DEPOSIT_PAID  => 'Deposit paid by customer',
         self::STATUS_FULFILLED     => 'Credit request fulfilled',
         self::STATUS_REFERRED      => 'Credit request referred by Underwriter, waiting for new status',
-        self::STATUS_SIGNED        => 'Customer have signed all contracts',
+        self::STATUS_SIGNED        => 'Customer has signed all contracts',
+        self::STATUS_READY         => 'Goods Ready to Dispatch',
     );
 
     private $noGo = array(
-        self::STATUS_CANCELED, 
+        self::STATUS_CANCELED,
         self::STATUS_DECLINED,
     );
 
@@ -327,7 +329,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $createStatus = self::STATUS_ACCEPTED;
         if (Mage::getStoreConfig('payment/pay/order_create_signed')) {
-            $createStatus = self::STATUS_SIGNED;
+            $createStatus = self::STATUS_READY;
         }
 
         $payload = file_get_contents('php://input');
@@ -466,8 +468,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $this->log("Amount mismatch: Lookup: {$lookupTotalAmount}, Order: {$orderGrandTotal}");
         }
 
-        if ($data->status === self::STATUS_SIGNED) {
-            $this->debug("Signed");
+        if ($data->status === self::STATUS_READY) {
 
             if ($amountsMatch) {
                 $newStatus = self::M_STATUS_DEFAULT;
