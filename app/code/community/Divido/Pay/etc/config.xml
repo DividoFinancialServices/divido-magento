@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <config>
     <modules>
-        <divido_pay>
+        <Divido_Pay>
             <version>0.10.4</version>
-        </divido_pay>
+        </Divido_Pay>
     </modules>
     <adminhtml>
         <layout>
