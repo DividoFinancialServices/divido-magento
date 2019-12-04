@@ -1,5 +1,5 @@
 <?php
-require_once(Mage::getBaseDir('lib') . '/Divido/Divido.php'); 
+require_once(Mage::getBaseDir('lib') . '/Divido/Divido.php');
 class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 {
 
@@ -31,7 +31,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         LOG_FILE             = 'divido.log',
         EPSILON              = 0.000001,
         DIVIDO_WAIT_TIME     = 7;
-        
+
     private $historyMessages = array(
         self::STATUS_ACCEPTED      => 'Credit request accepted',
         self::STATUS_ACTION_LENDER => 'Lender notified',
@@ -120,7 +120,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $existing_lookup->setInvalidatedAt(date(DATE_ATOM));
             $existing_lookup->save();
             $existing_lookup_id = null;
-            
+
         }
 
         $deposit_percentage  = $this->getRequest()->getParam('divido_deposit') / 100;
@@ -130,7 +130,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
 
         $shipAddr   = $quote_session->getShippingAddress();
         $shipping   = $shipAddr->getData();
-        
+
         $billAddr   = $quote_session->getBillingAddress();
         $billing    = $billAddr->getData();
 
@@ -142,8 +142,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $shippingAddressStreet   = str_replace("\n"," ", $shipping['street']);
         $shippingAddressPostcode = $shipping['postcode'];
         $shippingAddressCity     = $shipping['city'];
-        
-        
+
+
         $postcode   = $shipping['postcode'];
         $telephone  = $shipping['telephone'];
         $firstname  = $shipping['firstname'];
@@ -156,6 +156,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         $items_in_cart  = $item_quote->getAllItems();
         $products       = array();
 
+        $cumulative_total = 0;
         foreach ($items_in_cart as $item) {
             if ($item->getRealProductType() == 'bundle') {
                 continue;
@@ -170,6 +171,8 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
                 "quantity" => $item_qty,
                 "value"    => $item_value,
             );
+
+            $cumulative_total += $item_value * $item_qty;
         }
 
         foreach ($totals as $total) {
@@ -183,7 +186,16 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
                 'quantity' => 1,
                 'value' => $total->getValue(),
             );
+
+            $cumulative_total += $total->getValue();
         }
+
+        $products[] = array(
+            'type' => 'product',
+            'text' => 'adjustments',
+            'quantity' => 1,
+            'value' => $grand_total - $cumulative_total,
+        );
 
         $deposit = round($deposit_percentage * $grand_total, 2);
 
@@ -209,7 +221,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'buildingName'      => '',
             'town'              => $addressCity,
             'flat'              => '',
-            'text'              => $addressText,            
+            'text'              => $addressText,
         );
 
         $customer = array(
@@ -225,7 +237,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             'shippingAddress'   => $shippingAddress,
             'address'           => $address
         );
-                        
+
         $metadata = array(
             'quote_id'   => $quote_id,
             'quote_hash' => $quote_hash,
@@ -302,18 +314,18 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         while($i < self::DIVIDO_WAIT_TIME) {
             $order = Mage::getModel('sales/order')->loadByAttribute('quote_id', $quoteId);
             if ($order->getId()) {
-                if (Mage::getStoreConfig('payment/pay/debug')) {                    
+                if (Mage::getStoreConfig('payment/pay/debug')) {
                     Mage::log('already have order with id ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
                 }
                 break;
-            }else { 
-                if (Mage::getStoreConfig('payment/pay/debug')) {                    
+            }else {
+                if (Mage::getStoreConfig('payment/pay/debug')) {
                     Mage::log('order not created waiting: ' . $quoteId, Zend_Log::DEBUG, 'divido.log', true);
-                }        
+                }
                 $i++;
                 sleep(1);
             }
-    
+
         }
 
         if ($orderId = $order->getId()) {
@@ -406,7 +418,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
             $quote_service = Mage::getModel('sales/service_quote', $quote);
 
             $checkout_type=$lookup->getData('customer_checkout');
-            
+
             //Customer type
             switch ($checkout_type) {
                 case self::METHOD_GUEST:
@@ -425,7 +437,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
                 case 'login_in':
                         $this->debug("Prepare Customer Quote 2");
                             $this->_prepareCustomerQuote($quote);
-                            break;          
+                            break;
                 default:
                 $this->debug("Prepare guest Quote defualt");
                     $this->_prepareGuestQuote($quote);
@@ -506,7 +518,7 @@ class Divido_Pay_PaymentController extends Mage_Core_Controller_Front_Action
         }
 
         $this->log($msg, Zend_Log::DEBUG);
-    }  
+    }
 
     private function log ($msg, $level = Zend_log::WARN)
     {
